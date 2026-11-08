@@ -2,7 +2,7 @@
 
 **Rule zero: `main` always runs and is always demoable.** If you aren't sure your change works, it doesn't go to `main` yet.
 
-Team: **Yash** (eyes/ML + AI) · **Yudi** (frontend) · **Om** (backend + voice) · **AT** (infra, deploy, live events).
+Team: **Yash** (eyes/ML + AI) · **Yudi** (frontend) · **AT** (backend + voice) · **Om** (infra, deploy, live events).
 
 ---
 
@@ -15,21 +15,21 @@ git config pull.rebase true        # keeps history linear, fewer merge commits
 cp .env.example .env               # fill in keys locally; NEVER commit .env
 ```
 
-Ask AT for the key values over DM (not in the group chat, never in git).
+Ask Om for the key values over DM (not in the group chat, never in git).
 
 ---
 
 ## 2. Who owns what
 
 Stay in your own folder. If you must touch someone else's file, **tell them first** and say so in the commit message
-(e.g. `api: add publish() call in main.py (touches Om's file, ok'd by Om)`).
+(e.g. `api: add publish() call in main.py (touches AT's file, ok'd by AT)`).
 
 | Owner | Files |
 |---|---|
 | Yash | `web/lib/face.ts`, `web/lib/signals.ts`, `web/lib/calibrate.ts`, `web/lib/stt.ts`, `api/gemini.py`, `ml/` |
 | Yudi | `web/` (everything except Yash's lib files), `web/lib/api.ts` |
-| Om | `api/main.py`, `api/voice.py`, `api/db.py` |
-| AT | `deploy/`, `api/events.py`, `.env.example`, `.gitignore` |
+| AT | `api/main.py`, `api/voice.py`, `api/db.py` |
+| Om | `deploy/`, `api/events.py`, `.env.example`, `.gitignore` |
 
 **Shared contracts** (API routes, types, env var names, `SignalEvent`) are in `CLAUDE.md`. They change only when all four agree —
 post in the group chat, get a 👍 from everyone, then update `CLAUDE.md` in the same PR as the code.
@@ -44,7 +44,7 @@ git checkout main
 git pull
 
 # 2. Make a branch: <name>/<short-thing>
-git checkout -b at/sse-broadcaster      # yash/..., yudi/..., om/..., at/...
+git checkout -b om/sse-broadcaster      # yash/..., yudi/..., om/..., at/...
 
 # 3. Work, commit small and often
 git add <files>                          # add specific files, not `git add .` blindly
@@ -55,7 +55,7 @@ git fetch origin
 git rebase origin/main                   # fix conflicts if any, then: git add <file> && git rebase --continue
 
 # 5. Check it still runs locally (see §5), then push
-git push -u origin at/sse-broadcaster
+git push -u origin om/sse-broadcaster
 
 # 6. Open a PR into main
 gh pr create --base main --fill          # or use the GitHub website
@@ -64,7 +64,7 @@ gh pr create --base main --fill          # or use the GitHub website
 After it's merged:
 ```bash
 git checkout main && git pull
-git branch -d at/sse-broadcaster
+git branch -d om/sse-broadcaster
 ```
 
 **Branch size:** aim for a PR every 1–2 hours. A branch that lives overnight will hurt to merge.
@@ -108,7 +108,7 @@ After a rebase you need `git push --force-with-lease` (never plain `--force`, an
 
 ---
 
-## 7. Deploying to the live server (AT runs this; anyone can in an emergency)
+## 7. Deploying to the live server (Om runs this; anyone can in an emergency)
 
 `main` is what runs on the Vultr server. After a PR merges:
 

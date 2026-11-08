@@ -49,9 +49,9 @@ Built at **UB Hacking 2026**.
 | Folder | What | Owner |
 |---|---|---|
 | `web/` | Next.js frontend: talk board, spelling, calibration, caregiver view, results | Yudi (eye-tracking libs: Yash) |
-| `api/` | FastAPI backend: suggest, speak, messages, alerts, profile | Om (`gemini.py`: Yash, `events.py`: AT) |
+| `api/` | FastAPI backend: suggest, speak, messages, alerts, profile | AT (`gemini.py`: Yash, `events.py`: Om) |
 | `ml/` | Eye-signal recordings, classifier training, ONNX export | Yash |
-| `deploy/` | Vultr server, Caddy HTTPS, systemd, deploy/rollback scripts | AT |
+| `deploy/` | Vultr server, Caddy HTTPS, systemd, deploy/rollback scripts | Om |
 | `docs/` | Team workflow and plans | everyone |
 
 ## Run it locally
@@ -89,8 +89,8 @@ Video never leaves the device. Only text (transcripts, chosen phrases) and small
 - **How we work (branches → PR → main):** [docs/WORKFLOW.md](docs/WORKFLOW.md)
 - **Shared contracts (API, types, env vars):** [CLAUDE.md](CLAUDE.md)
 - **Deploy / redeploy runbook:** [deploy/README.md](deploy/README.md)
-- **Infra plan:** [docs/AT-PLAN.md](docs/AT-PLAN.md)
+- **Infra plan:** [docs/OM-PLAN.md](docs/OM-PLAN.md)
 
 ## Team
 
-Yash (eye tracking, ML, AI) · Yudi (frontend, UI/UX) · Om (backend, voice) · AT (infrastructure, deployment, live events)
+Yash (eye tracking, ML, AI) · Yudi (frontend, UI/UX) · AT (backend, voice) · Om (infrastructure, deployment, live events)

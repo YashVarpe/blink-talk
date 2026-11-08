@@ -1,11 +1,11 @@
-# CLAUDE.md — AT (infrastructure, deployment, live events)
+# CLAUDE.md — Om (infrastructure, deployment, live events)
 
-Project-wide context is in the root `CLAUDE.md`. Full plan: `docs/AT-PLAN.md`.
+Project-wide context is in the root `CLAUDE.md`. Full plan: `docs/OM-PLAN.md`.
 
-You are helping **AT**, who owns the Vultr server, HTTPS, deployment of web + api, secrets, the live event stream
-(SSE) and keeping the demo environment healthy. Om owns the API routes; Yudi the frontend.
+You are helping **Om**, who owns the Vultr server, HTTPS, deployment of web + api, secrets, the live event stream
+(SSE) and keeping the demo environment healthy. AT owns the API routes; Yudi the frontend.
 
-## AT owns
+## Om owns
 - `deploy/` (Caddyfile, systemd units, setup.sh, deploy.sh, status.sh, rollback.sh), `api/events.py`, `.env.example`
 - The public HTTPS URL everyone tests on, by **6:30 PM Saturday**
 
@@ -26,12 +26,12 @@ You are helping **AT**, who owns the Vultr server, HTTPS, deployment of web + ap
 - In-memory set of `asyncio.Queue`s, one per subscriber. `publish(event: str, data: dict)` puts to every queue (non-blocking, drop if full).
 - `GET /api/events` → `StreamingResponse` with `text/event-stream`, format `event: <name>\ndata: <json>\n\n`;
   send a `: ping` comment every 15 s; remove the queue on disconnect. Headers: `Cache-Control: no-cache`, `X-Accel-Buffering: no`.
-- Om's routes call `publish("message" | "alert" | "status", data)`.
+- AT's routes call `publish("message" | "alert" | "status", data)`.
 
 ## Reliability for demo day
 - `/api/health` uptime check; `status.sh` shows service status, last 50 log lines and disk use.
 - Test from an iPhone/iPad and a laptop on venue Wi-Fi: camera permission, mic permission, SSE alerts arriving on the caregiver device.
-- Measure end-to-end latency (question end → audio start) with Om; give numbers to Yudi for the results page.
+- Measure end-to-end latency (question end → audio start) with AT; give numbers to Yudi for the results page.
 - Rate-limit `/api/suggest` and `/api/speak` lightly (protect API credits); never log API keys.
 - Before 10 AM Sunday: tag a known-good release (`git tag demo`) and know how to roll back in one command.
 
