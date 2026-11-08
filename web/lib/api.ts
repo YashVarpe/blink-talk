@@ -27,7 +27,7 @@ export const DEFAULT_PHRASES = ["Yes", "No", "I need help", "I'm in pain", "Than
 /** Returns null on failure/timeout so the UI keeps its current tiles. */
 export async function suggest(transcript: string | null, history: Message[]): Promise<SuggestResponse | null> {
   try {
-    const r = await req("/api/suggest", json({ transcript, history, localTime: localIso() }), 4000);
+    const r = await req("/api/suggest", json({ transcript, history, localTime: localIso() }), 5000);
     return await r.json();
   } catch { return null; }
 }
@@ -46,23 +46,23 @@ export async function speak(text: string): Promise<void> {
 }
 
 export async function postMessage(role: Role, text: string): Promise<Message | null> {
-  try { return await (await req("/api/messages", json({ role, text }), 4000)).json(); } catch { return null; }
+  try { return await (await req("/api/messages", json({ role, text }), 5000)).json(); } catch { return null; }
 }
 export async function getMessages(limit = 20): Promise<Message[]> {
-  try { return await (await req(`/api/messages?limit=${limit}`, { method: "GET" }, 4000)).json(); } catch { return []; }
+  try { return await (await req(`/api/messages?limit=${limit}`, { method: "GET" }, 5000)).json(); } catch { return []; }
 }
 export async function postAlert(type: "emergency" | "emergency_cancelled"): Promise<void> {
-  try { await req("/api/alert", json({ type }), 4000); } catch { /* retry is UI's job */ }
+  try { await req("/api/alert", json({ type }), 5000); } catch { /* retry is UI's job */ }
 }
 export async function postStatus(state: Status): Promise<void> {
-  try { await req("/api/status", json({ state }), 4000); } catch { /* non-critical */ }
+  try { await req("/api/status", json({ state }), 5000); } catch { /* non-critical */ }
 }
 export async function getProfile(): Promise<Profile | null> {
-  try { return await (await req("/api/profile", { method: "GET" }, 4000)).json(); } catch { return null; }
+  try { return await (await req("/api/profile", { method: "GET" }, 5000)).json(); } catch { return null; }
 }
 export async function putProfile(p: Profile): Promise<Profile | null> {
-  try { return await (await req("/api/profile", { ...json(p), method: "PUT" }, 4000)).json(); } catch { return null; }
+  try { return await (await req("/api/profile", { ...json(p), method: "PUT" }, 5000)).json(); } catch { return null; }
 }
 export async function health(): Promise<boolean> {
-  try { return (await (await req("/api/health", { method: "GET" }, 2000)).json()).ok === true; } catch { return false; }
+  try { return (await (await req("/api/health", { method: "GET" }, 5000)).json()).ok === true; } catch { return false; }
 }
