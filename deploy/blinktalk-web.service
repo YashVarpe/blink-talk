@@ -1,0 +1,17 @@
+# Yudi's Next.js website. Installed at /etc/systemd/system/blinktalk-web.service
+[Unit]
+Description=BlinkTalk web (Next.js on 127.0.0.1:3000)
+After=network.target
+
+[Service]
+User=deploy
+WorkingDirectory=/srv/blinktalk/web
+EnvironmentFile=/srv/blinktalk/.env
+Environment=NODE_ENV=production
+# Call next directly (not npm) so systemd sees the real process and stops it cleanly.
+ExecStart=/srv/blinktalk/web/node_modules/.bin/next start -p 3000 -H 127.0.0.1
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

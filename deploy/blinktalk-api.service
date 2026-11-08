@@ -1,0 +1,16 @@
+# AT's FastAPI backend. Installed at /etc/systemd/system/blinktalk-api.service
+[Unit]
+Description=BlinkTalk API (FastAPI on 127.0.0.1:8000)
+After=network.target
+
+[Service]
+User=deploy
+WorkingDirectory=/srv/blinktalk/api
+EnvironmentFile=/srv/blinktalk/.env
+# --workers 1 on purpose: SSE subscribers live in this one process's memory.
+ExecStart=/srv/blinktalk/api/.venv/bin/uvicorn main:app --host 127.0.0.1 --port 8000 --workers 1 --timeout-graceful-shutdown 3
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
