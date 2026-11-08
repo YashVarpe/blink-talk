@@ -34,7 +34,7 @@ export default function Spell() {
     else if (it === "Delete") setText((t) => t.slice(0, -1));
     else if (it === "Speak") {
       const t = textRef.current.trim();
-      if (t) { await postMessage("user", t); speak(t); setText(""); router.push("/talk"); }
+      if (t) { speak(t); await postMessage("user", t); setText(""); router.push("/talk"); }
     } else if (it.startsWith("→ ")) {
       setText((t) => t.slice(0, t.length - last.length) + it.slice(2) + " ");
     } else setText((t) => t + it.toLowerCase());
