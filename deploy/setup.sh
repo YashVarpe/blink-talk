@@ -16,6 +16,7 @@ ufw --force enable
 
 echo "== 2/6 deploy user (same SSH key as root) =="
 id deploy >/dev/null 2>&1 || adduser --disabled-password --gecos "" deploy
+usermod -aG systemd-journal deploy   # read-only access to all logs (incl. systemd's crash/restart lines) for status.sh
 if [ ! -s /root/.ssh/authorized_keys ]; then
   echo "ERROR: /root/.ssh/authorized_keys is missing or empty. Add your SSH public key to root first (see deploy/README.md)." >&2
   exit 1
