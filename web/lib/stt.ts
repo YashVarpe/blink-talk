@@ -34,10 +34,12 @@ export function sttSupported(): boolean {
   return getCtor() !== null;
 }
 
-export function startListening(onFinal: (text: string) => void): () => void {
+/** onUnavailable: called once if listening can never work (unsupported browser or microphone denied). */
+export function startListening(onFinal: (text: string) => void, onUnavailable?: () => void): () => void {
   const Ctor = getCtor();
   if (!Ctor) {
     console.warn("[stt] Web Speech API not supported in this browser (use Chrome)");
+    onUnavailable?.();
     return () => {};
   }
   let stopped = false;
@@ -63,6 +65,7 @@ export function startListening(onFinal: (text: string) => void): () => void {
       if (e.error === "not-allowed" || e.error === "service-not-allowed") {
         console.warn("[stt] microphone permission denied");
         stopped = true;
+        onUnavailable?.();
       } else if (e.error !== "no-speech" && e.error !== "aborted") {
         console.warn("[stt] error:", e.error);
         restartDelay = Math.min(5000, restartDelay * 2);

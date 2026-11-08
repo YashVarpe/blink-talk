@@ -7,7 +7,7 @@ from models import Profile
 N = 6
 
 # Always-useful needs. The first four go on every fallback board.
-GENERAL = ["Yes", "No", "I'm in pain", "I need the nurse", "Thank you", "Spell something"]
+GENERAL = ["Yes", "No", "I'm in pain", "I need the nurse", "Thank you", "Please wait"]
 
 BY_TIME = {
     "morning": ["Good morning", "I'd like breakfast", "I slept well", "I didn't sleep well"],

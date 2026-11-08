@@ -2,12 +2,11 @@
 //   default          LightGBM classifier (public/models/signal_trees.json), every 100 ms on 1 s windows
 //   ?signals=rules   threshold rules from calibration (fallback)
 //   ?mode=scan       highlight auto-advances every 1.5 s; long blink selects (no gaze needed)
-import type { SignalEvent } from "./mockSignals";
 import { startFace } from "./face";
 import { loadCalibration } from "./calibrate";
 import {
   DEFAULT_CALIBRATION, DEFAULT_DECODE, Decoder, FeatureBuffer, predictTrees,
-  type Meta, type Row, type Trees,
+  type Meta, type Row, type SignalEvent, type Trees,
 } from "./signalCore";
 
 export type { SignalEvent };

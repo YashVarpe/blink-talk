@@ -1,5 +1,5 @@
 // Guided calibration → per-user rest values and gesture peaks, saved in localStorage.
-// signals.ts reads them. Steps: rest 3 s → look left ×3 → look right ×3 → long blink ×3 → eyebrows ×2.
+// signals.ts reads them. Steps: rest 3 s → look left ×3 → look right ×3 → long blink ×3.
 import { startFace } from "./face";
 import { DEFAULT_CALIBRATION, type Calibration, type Frame, type Rest } from "./signalCore";
 
@@ -30,7 +30,7 @@ export function clearCalibration() {
   }
 }
 
-export type CalStepKey = "rest" | "left" | "right" | "blink" | "brow" | "done";
+export type CalStepKey = "rest" | "left" | "right" | "blink" | "done";
 export type CalStep = {
   key: CalStepKey;
   title: string;
@@ -98,7 +98,6 @@ export async function runCalibration(
     { key: "left", title: "Look left", reps: 3 },
     { key: "right", title: "Look right", reps: 3 },
     { key: "blink", title: "Long blink", reps: 3 },
-    { key: "brow", title: "Raise eyebrows", reps: 2 },
   ];
   const report = (i: number, rep: number, phase: CalStep["phase"], instruction: string, dot: CalStep["dot"] = "center") =>
     onStep({ key: STEPS[i].key, title: STEPS[i].title, instruction, dot, phase, rep, reps: STEPS[i].reps, stepIndex: i, steps: STEPS.length, faceFound });
@@ -160,18 +159,6 @@ export async function runCalibration(
       if (fs.length) blinkPeaks.push(Math.max(...fs.map((f) => f.blink)) - rest.blink);
     }
 
-    // 5. eyebrows
-    const browPeaks: number[] = [];
-    for (let rep = 1; rep <= STEPS[4].reps; rep++) {
-      report(4, rep, "relax", "Relax your face");
-      await sleep(1.5);
-      report(4, rep, "go", "Raise your eyebrows");
-      a = now();
-      await sleep(1.2);
-      const fs = between(a, now());
-      if (fs.length) browPeaks.push(Math.max(...fs.map((f) => f.brow)) - rest.brow);
-    }
-
     const cal: Calibration = {
       rest,
       hsign,
@@ -179,7 +166,6 @@ export async function runCalibration(
         left: (leftH - rest.h) * hsign,
         right: (rightH - rest.h) * hsign,
         blink: median(blinkPeaks),
-        brow: median(browPeaks),
       },
       ts: Date.now(),
       notes: [],
@@ -192,7 +178,6 @@ export async function runCalibration(
     if (!(cal.peaks.left > 0.15)) { n.push("left look was weak"); cal.peaks.left = Math.max(cal.peaks.left || 0, 0.3); }
     if (!(cal.peaks.right < -0.15)) { n.push("right look was weak"); cal.peaks.right = Math.min(cal.peaks.right || 0, -0.3); }
     if (!(cal.peaks.blink > 0.3)) n.push("eyes did not close fully: blink detection may be weak");
-    if (!(cal.peaks.brow > 0.1)) { n.push("eyebrow raise was weak"); cal.peaks.brow = Math.max(cal.peaks.brow || 0, 0.3); }
 
     saveCalibration(cal);
     onStep({ key: "done", title: "Done", instruction: n.length ? n.join(" · ") : "Calibration saved", dot: "center", phase: "done", rep: 1, reps: 1, stepIndex: STEPS.length, steps: STEPS.length, faceFound });

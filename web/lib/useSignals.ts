@@ -1,18 +1,13 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { SignalEvent, startKeyboardSignals } from "./mockSignals";
-import { startTracking } from "./signals";
+import { startTracking, type SignalEvent } from "./signals";
 
-// Eye tracking (signals.ts) + keyboard backup, always both.
-// ?keys=1 → keyboard only (no camera).
+// Eye tracking (signals.ts) → handler. The camera runs in a hidden <video>; frames never leave the browser.
 export function useSignals(handler: (e: SignalEvent) => void) {
   const ref = useRef(handler);
   ref.current = handler;
   useEffect(() => {
     const emit = (e: SignalEvent) => ref.current(e);
-    const stopKeys = startKeyboardSignals(emit);
-    if (new URLSearchParams(window.location.search).has("keys")) return stopKeys;
-
     const video = document.createElement("video");
     video.muted = true;
     video.playsInline = true;
@@ -24,11 +19,10 @@ export function useSignals(handler: (e: SignalEvent) => void) {
     let cancelled = false;
     startTracking(video, emit)
       .then((stop) => (cancelled ? stop() : (stopEyes = stop)))
-      .catch((err) => console.error("[BlinkTalk] eye tracking failed, keyboard still works:", err));
+      .catch((err) => console.error("[BlinkTalk] eye tracking failed:", err));
 
     return () => {
       cancelled = true;
-      stopKeys();
       stopEyes?.();
       video.remove();
     };
