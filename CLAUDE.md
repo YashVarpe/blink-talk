@@ -1,7 +1,7 @@
 # CLAUDE.md — BlinkTalk (UB Hacking 2026)
 
 Shared project context for everyone on the team. Role-specific notes live next to the code each person owns
-(for example `deploy/CLAUDE.md` for AT). Team workflow: see `docs/WORKFLOW.md`.
+(for example `deploy/CLAUDE.md` for Om). Team workflow: see `docs/WORKFLOW.md`.
 
 ## Project
 
@@ -12,7 +12,7 @@ caregiver just said; ElevenLabs speaks the chosen reply in the user's (cloned) v
 
 - **Deadline:** submit by Sun Nov 8, 2:30 PM ET. Feature freeze 10:00 AM. Working basic demo by Sat 9:00 PM.
 - **Prizes targeted:** Radial Atoms (AI + physical world: Sense → Understand → Act), Best AI/ML, Gemini, ElevenLabs, Vultr, Best UI/UX.
-- **Team:** Yash = eyes/ML + AI layer · Yudi = frontend (+ helps Yash) · Om = backend API + voice · AT = infra, deploy, live events.
+- **Team:** Yash = eyes/ML + AI layer · Yudi = frontend (+ helps Yash) · AT = backend API + voice · Om = infra, deploy, live events.
 
 ## Ground rules for Claude in this repo
 - Hackathon: prefer simple, working code over clever code. Smallest change that works. No new dependency unless it saves real time.
@@ -37,15 +37,15 @@ blinktalk/
 │   ├── lib/stt.ts        caregiver speech-to-text                    (Yash)
 │   ├── lib/api.ts        typed client for the backend                (Yudi)
 │   └── public/models/signal.onnx
-├── api/                  FastAPI (Om; Yash owns api/gemini.py; AT owns api/events.py)
+├── api/                  FastAPI (AT; Yash owns api/gemini.py; Om owns api/events.py)
 │   ├── main.py           routes
 │   ├── gemini.py         suggest() — prompt + JSON output            (Yash)
-│   ├── voice.py          ElevenLabs TTS + audio cache                (Om)
-│   ├── events.py         SSE broadcaster                             (AT)
-│   ├── db.py             SQLite: profile, messages                   (Om)
+│   ├── voice.py          ElevenLabs TTS + audio cache                (AT)
+│   ├── events.py         SSE broadcaster                             (Om)
+│   ├── db.py             SQLite: profile, messages                   (AT)
 │   └── audio_cache/
 ├── ml/                   recordings/, train.py, export_onnx.py, eval.py (Yash)
-├── deploy/               Caddyfile, systemd units, setup.sh, deploy.sh (AT)
+├── deploy/               Caddyfile, systemd units, setup.sh, deploy.sh (Om)
 └── .env.example
 ```
 

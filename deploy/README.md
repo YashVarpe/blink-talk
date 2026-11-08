@@ -1,10 +1,10 @@
 # Deploy runbook (anyone can redeploy at 4 AM)
 
-> Filled in as commands are run. Full plan and reasoning: `docs/AT-PLAN.md`.
+> Filled in as commands are run. Full plan and reasoning: `docs/OM-PLAN.md`.
 
 - **Server:** Vultr, Ubuntu LTS — IP: `TBD`
 - **URL:** `https://TBD`
-- **SSH:** `ssh deploy@<ip>` (ask AT to add your public key)
+- **SSH:** `ssh deploy@<ip>` (ask Om to add your public key)
 - **App dir:** `/srv/blinktalk` · **Secrets:** `/srv/blinktalk/.env` (never in git)
 
 ## Common commands
@@ -17,4 +17,4 @@ sudo systemctl restart blinktalk-api blinktalk-web
 ```
 
 ## Command log
-<!-- AT: append every command run on the server here, in order -->
+<!-- Om: append every command run on the server here, in order -->
