@@ -21,7 +21,10 @@ export default function Caregiver() {
   useEffect(() => {
     getMessages(20).then((m) => setMessages(m));
     const es = new EventSource("/api/events");
-    es.onopen = () => setConnected(true);
+    es.onopen = () => {
+      setConnected(true);
+      getMessages(20).then((m) => setMessages(m)); // catch up after a locked phone or dropped connection
+    };
     es.onerror = () => setConnected(false);
     es.addEventListener("message", (e) => {
       const m: Message = JSON.parse((e as MessageEvent).data);
