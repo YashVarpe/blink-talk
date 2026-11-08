@@ -11,12 +11,23 @@ async function req(path: string, init: RequestInit, timeoutMs: number): Promise<
 }
 const json = (body: unknown): RequestInit => ({ method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 
+function localIso(d = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const off = -d.getTimezoneOffset();
+  const sign = off >= 0 ? "+" : "-";
+  const a = Math.abs(off);
+  return (
+    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` +
+    `T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}` +
+    `${sign}${pad(Math.floor(a / 60))}:${pad(a % 60)}`
+  );
+}
 export const DEFAULT_PHRASES = ["Yes", "No", "I need help", "I'm in pain", "Thank you", "Water please"];
 
 /** Returns null on failure/timeout so the UI keeps its current tiles. */
 export async function suggest(transcript: string | null, history: Message[]): Promise<SuggestResponse | null> {
   try {
-    const r = await req("/api/suggest", json({ transcript, history, localTime: new Date().toISOString() }), 4000);
+    const r = await req("/api/suggest", json({ transcript, history, localTime: localIso() }), 4000);
     return await r.json();
   } catch { return null; }
 }
