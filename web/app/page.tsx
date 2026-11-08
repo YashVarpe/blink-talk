@@ -31,7 +31,7 @@ export default function Home() {
   return (
     <main className="mx-auto flex min-h-screen max-w-4xl flex-col items-center justify-center gap-8 p-6 text-center">
       <div className="flex flex-col items-center gap-5">
-        <svg width="72" height="72" viewBox="0 0 84 84" aria-hidden="true">
+        <svg className="logo-glow" width="72" height="72" viewBox="0 0 84 84" aria-hidden="true">
           <defs>
             <linearGradient id="logo" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0" stopColor="#b2ad4a" />
@@ -39,16 +39,18 @@ export default function Home() {
             </linearGradient>
           </defs>
           <rect width="84" height="84" rx="24" fill="url(#logo)" />
-          <path
-            d="M14 42c8-13 18-19 28-19s20 6 28 19c-8 13-18 19-28 19S22 55 14 42z"
-            fill="none"
-            stroke="#fff"
-            strokeWidth="5"
-            strokeLinejoin="round"
-          />
-          <circle cx="42" cy="42" r="9" fill="#fff" />
+          <g className="eye-blink">
+            <path
+              d="M14 42c8-13 18-19 28-19s20 6 28 19c-8 13-18 19-28 19S22 55 14 42z"
+              fill="none"
+              stroke="#fff"
+              strokeWidth="5"
+              strokeLinejoin="round"
+            />
+            <circle cx="42" cy="42" r="9" fill="#fff" />
+          </g>
         </svg>
-        <h1 className="font-display text-7xl font-extrabold italic leading-none tracking-tight md:text-8xl">
+        <h1 className="wordmark-glow font-display text-7xl font-extrabold italic leading-none tracking-tight md:text-8xl">
           BlinkTalk
         </h1>
         <p className="max-w-xl text-lg leading-relaxed text-muted md:text-xl">
