@@ -71,7 +71,7 @@ export default function Calibrate() {
       <div className="flex flex-wrap items-center justify-center gap-3">
         {!running && (
           <button onClick={start} className="glow rounded-full bg-highlight px-10 py-5 text-2xl font-semibold text-onhighlight shadow-glow">
-            {done || hasSaved ? "Calibrate again" : "Start"}
+            {done || hasSaved ? "Calibrate again" : "Calibrate now"}
           </button>
         )}
         {running && (
