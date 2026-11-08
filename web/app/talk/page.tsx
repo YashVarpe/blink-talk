@@ -8,11 +8,13 @@ import { moveSound, selectSound } from "@/lib/sound";
 import { Tile } from "@/lib/Tile";
 import type { Message } from "@/lib/types";
 import type { SignalEvent } from "@/lib/mockSignals";
+import { useKeepWarm } from "@/lib/useKeepWarm";
 
 const SPELL = "Spell something";
 
 export default function Talk() {
   const router = useRouter();
+  useKeepWarm();
   const [phrases, setPhrases] = useState<string[]>(DEFAULT_PHRASES);
   const [idx, setIdx] = useState(0);
   const [progress, setProgress] = useState(0);
