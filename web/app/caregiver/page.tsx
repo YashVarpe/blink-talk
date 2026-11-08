@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { getMessages } from "@/lib/api";
 import { beep } from "@/lib/sound";
 import type { Message, Status } from "@/lib/types";
+import { useKeepWarm } from "@/lib/useKeepWarm";
 
 const STATUS: Record<Status, { label: string; dot: string; pill: string }> = {
   active: { label: "Active", dot: "bg-good", pill: "bg-good/15 text-good" },
@@ -11,6 +12,7 @@ const STATUS: Record<Status, { label: string; dot: string; pill: string }> = {
 };
 
 export default function Caregiver() {
+  useKeepWarm();
   const [messages, setMessages] = useState<Message[]>([]);
   const [status, setStatus] = useState<Status>("active");
   const [alert, setAlert] = useState(false);
