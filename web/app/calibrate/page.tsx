@@ -45,9 +45,11 @@ export default function Calibrate() {
       )}
 
       <div className="glass flex w-full flex-col items-center gap-5 rounded-4xl px-8 py-10">
-        <p className="caption">
-          {step && !done ? `Step ${step.stepIndex + 1} of ${step.steps}${step.reps > 1 ? ` · ${step.rep}/${step.reps}` : ""}` : "Calibration"}
-        </p>
+        {step && !done && (
+          <p className="caption">
+            {`Step ${step.stepIndex + 1} of ${step.steps}${step.reps > 1 ? ` · ${step.rep}/${step.reps}` : ""}`}
+          </p>
+        )}
         <h1 className="font-display text-6xl font-extrabold italic leading-none tracking-tight md:text-7xl">
           {step ? step.title : "Calibration"}
         </h1>
