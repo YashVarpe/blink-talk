@@ -6,6 +6,7 @@ import { useSignals } from "@/lib/useSignals";
 import { moveSound, selectSound } from "@/lib/sound";
 import { Tile } from "@/lib/Tile";
 import { suggestWords } from "@/lib/words";
+import { muteListening } from "@/lib/stt";
 
 const GROUPS = ["A–E", "F–J", "K–O", "P–T", "U–Z", "Space / Delete / Speak"];
 const lettersOf = (g: string) => (g.includes("Space") ? ["Space", "Delete", "Speak", "Back"] : [...range(g[0], g[2]), "Back"]);
@@ -34,7 +35,7 @@ export default function Spell() {
     else if (it === "Delete") setText((t) => t.slice(0, -1));
     else if (it === "Speak") {
       const t = textRef.current.trim();
-      if (t) { speak(t); await postMessage("user", t); setText(""); router.push("/talk"); }
+      if (t) { muteListening(Math.min(10000, 1500 + t.length * 70)); speak(t); await postMessage("user", t); setText(""); router.push("/talk"); }
     } else if (it.startsWith("→ ")) {
       setText((t) => t.slice(0, t.length - last.length) + it.slice(2) + " ");
     } else setText((t) => t + it.toLowerCase());
