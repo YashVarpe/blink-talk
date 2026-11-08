@@ -96,6 +96,7 @@ export default function Talk() {
           <p className="mt-1 text-3xl font-semibold tracking-tight">{banner}</p>
         </div>
         <div className="flex items-center gap-3 text-lg">
+          <Link href="/" className="glow rounded-full bg-surface2 px-4 py-2 font-medium">← Home</Link>
           {mic && (
             <span className={`rounded-full px-4 py-2 font-medium ${mic === "on" ? "bg-good/15 text-good" : "bg-warn/15 text-warn"}`}>
               {mic === "on" ? "Listening" : "No microphone"}
