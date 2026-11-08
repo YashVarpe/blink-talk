@@ -65,16 +65,11 @@ Video never leaves the patient's device. Only text and small events are sent to 
 | | |
 |---|---|
 | 🌐 **Live application** | **[https://64-177-56-221.sslip.io](https://64-177-56-221.sslip.io)** (deployed, working product) |
-| 🎬 **Demo video** | _Coming soon_ <!-- TODO: add the demo video link (YouTube / Devpost) --> |
 | 💻 **Source code** | You're here |
 
 ### Screenshots
 
 <!-- TODO: replace the placeholders below with real screenshots or GIFs saved in docs/assets/ -->
-
-| Home | Calibration | Talk board | Caregiver view |
-|---|---|---|---|
-| _screenshot coming soon_ | _screenshot coming soon_ | _screenshot coming soon_ | _screenshot coming soon_ |
 
 ### 60-second walkthrough
 
