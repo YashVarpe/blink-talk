@@ -54,7 +54,7 @@ export default function Home() {
           BlinkTalk
         </h1>
         <p className="max-w-xl text-lg leading-relaxed text-muted md:text-xl">
-          Hold a conversation with your eyes. Look to move, blink to choose, and your voice speaks.
+          Hold a conversation with your eyes.
         </p>
       </div>
 
@@ -81,8 +81,8 @@ export default function Home() {
         </Link>
       </nav>
 
-      <p className="flex items-center gap-2 text-sm text-muted">
-        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+      <p className="flex items-center gap-2 text-sm text-ink md:text-base">
+        <svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true" className="shrink-0 text-highlight">
           <path
             d="M8 1l6 2v4c0 4-3 7-6 8-3-1-6-4-6-8V3z"
             fill="none"
@@ -91,7 +91,9 @@ export default function Home() {
             strokeLinejoin="round"
           />
         </svg>
-        Your camera video never leaves this device. Only text is sent to the server.
+        <span>
+          Your camera video <strong className="font-semibold text-highlight">never leaves this device</strong>. Only text is sent to the server.
+        </span>
       </p>
     </main>
   );
