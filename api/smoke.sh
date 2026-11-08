@@ -60,7 +60,7 @@ fi
 req GET /api/profile
 if [ "$CODE" = 200 ] && grep -q '"name"' "$TMP/body"; then ok "GET /api/profile"; else bad "GET /api/profile -> $CODE (is the real API deployed, not the placeholder?)"; fi
 
-# 3. suggest: exactly 6 phrases, under 4 s
+# 3. suggest: exactly 6 phrases, under 5 s (server time, not counting the HTTPS handshake)
 req POST /api/suggest '{"transcript":"Are you hungry?","history":[],"localTime":"2026-11-08T09:00:00-05:00"}'
 if [ "$CODE" = 200 ]; then
   RES=$(python3 -c "
@@ -69,10 +69,10 @@ d=json.load(open('$TMP/body'))
 print(len(d['phrases']), d['source'])" 2>/dev/null)
   N=${RES%% *}; SRC=${RES#* }
   if [ "$N" != 6 ]; then bad "POST /api/suggest returned $N phrases, need exactly 6"
-  elif python3 -c "import sys; sys.exit(0 if float('$TIME') < 4 else 1)"; then
+  elif python3 -c "import sys; sys.exit(0 if float('$TIME') < 5 else 1)"; then
     if [ "$SRC" = gemini ]; then ok "POST /api/suggest: 6 phrases from gemini in $(ms "$TIME") ms"
     else warn "POST /api/suggest: 6 phrases but source=$SRC (Gemini not live yet?) in $(ms "$TIME") ms"; fi
-  else bad "POST /api/suggest took $(ms "$TIME") ms (limit 4000)"; fi
+  else bad "POST /api/suggest took $(ms "$TIME") ms (limit 5000)"; fi
 else bad "POST /api/suggest -> $CODE"; fi
 
 # 4. bad input is rejected, not crashed

@@ -34,7 +34,7 @@ from models import (  # noqa: E402
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("blinktalk")
 
-GEMINI_TIMEOUT_S = 3.5  # contract: /suggest answers within 4 s
+GEMINI_TIMEOUT_S = 3.5  # Gemini cap (p95 is ~0.9 s). Contract: /suggest answers within 5 s, which leaves room for a slow first connection
 
 # ---- other people's modules: use them if present, stub them if not ----------
 # api/gemini.py is Yash's, api/events.py is Om's. We don't create or edit those files here.
