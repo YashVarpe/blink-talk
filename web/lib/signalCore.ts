@@ -1,6 +1,14 @@
 // Pure eye-signal logic (no DOM): per-frame features, 1 s window features, tree model, event decoding.
 // Shared by signals.ts (browser) and the parity test. Must match ml/notebooks/02_train_classifier.ipynb.
-import type { SignalEvent } from "./mockSignals";
+
+/** Eye-signal events for the UI (contract in CLAUDE.md; re-exported by signals.ts). */
+export type SignalEvent =
+  | { type: "move"; dir: -1 | 1 } // look left / right
+  | { type: "hold"; progress: number } // 0..1 while eyes closed, drives the progress ring
+  | { type: "select" } // long blink completed
+  | { type: "emergency" } // 5 quick blinks or eyes closed 2–4 s (UI shows 5 s cancel)
+  | { type: "rest"; on: boolean } // eyes closed > 5 s / woken by a long blink
+  | { type: "face"; found: boolean }; // face lost / found
 
 export type Frame = {
   t: number; // seconds
@@ -14,7 +22,7 @@ export type Rest = { blink: number; h: number; lookA: number; lookB: number; bro
 export type Calibration = {
   rest: Rest;
   hsign: 1 | -1; // +1 if looking at screen-LEFT raises h = lookA - lookB
-  peaks: { left: number; right: number; brow: number; blink: number }; // relative to rest, after hsign (left > 0, right < 0)
+  peaks: { left: number; right: number; blink: number }; // relative to rest, after hsign (left > 0, right < 0)
   ts: number;
   notes?: string[];
 };
@@ -22,19 +30,19 @@ export type Calibration = {
 export const DEFAULT_CALIBRATION: Calibration = {
   rest: { blink: 0.15, h: 0.05, lookA: 0.1, lookB: 0.05, brow: 0.01, yaw: 0, pitch: 0 },
   hsign: 1,
-  peaks: { left: 0.6, right: -0.6, brow: 0.5, blink: 0.6 },
+  peaks: { left: 0.6, right: -0.6, blink: 0.6 },
   ts: 0,
 };
 
 export type Decode = {
   p_min: number;
-  consec: { select: number; move: number; undo: number };
+  consec: { select: number; move: number };
   rearm_p_idle: number;
   select_min_s?: number; // eyes must also stay closed this long for a select
   head_gate_deg?: number; // ignore moves while the head turns more than this within the window
 };
 export const DEFAULT_DECODE: Decode = {
-  p_min: 0.5, consec: { select: 1, move: 3, undo: 2 }, rearm_p_idle: 0.5, select_min_s: 0.45, head_gate_deg: 8,
+  p_min: 0.5, consec: { select: 1, move: 3 }, rearm_p_idle: 0.5, select_min_s: 0.45, head_gate_deg: 8,
 };
 
 export type Meta = { features: string[]; window_s: number; step_s: number; closed_delta: number; decode: Decode };
@@ -201,10 +209,9 @@ export class Decoder {
   private armed = false; // this closure counts as a long blink
   private closureStart: number | null = null;
   private lastHoldEmit = 0;
-  private runs = { select: 0, move: 0, undo: 0 };
-  private latched = false; // waiting for idle after a move/undo
+  private runs = { select: 0, move: 0 };
+  private latched = false; // waiting for idle after a move
   private ruleMove: { side: -1 | 0 | 1; since: number; latched: boolean } = { side: 0, since: 0, latched: false };
-  private ruleBrow = { since: -1, latched: false };
   private restEmitted = false;
   private blinks: { start: number; end: number }[] = [];
 
@@ -214,7 +221,7 @@ export class Decoder {
     return this.closureStart !== null;
   }
 
-  /** Every frame: closures → hold / select / rest / emergency; rules mode also does moves and undo. */
+  /** Every frame: closures → hold / select / rest / emergency; rules mode also does moves. */
   onFrame(row: Row, emit: Emit) {
     if (row.closed) {
       if (this.closureStart === null) {
@@ -267,7 +274,7 @@ export class Decoder {
         emit({ type: "select" });
       }
     }
-    if (this.mode === "rules" && !row.closed && !this.resting) this.rulesGazeBrow(row, emit);
+    if (this.mode === "rules" && !row.closed && !this.resting) this.rulesGaze(row, emit);
   }
 
   private selectMin() {
@@ -277,7 +284,7 @@ export class Decoder {
   /** Every inference (≈100 ms) in classifier mode. headRange = max(yaw range, pitch range) in the window, degrees. */
   onProbs(p: Record<string, number>, row: Row, emit: Emit, headRange = 0) {
     const pl = p.left ?? 0, pr = p.right ?? 0;
-    const cand = { select: p.long_blink ?? 0, move: pl + pr, undo: p.brow_up ?? 0 };
+    const cand = { select: p.long_blink ?? 0, move: pl + pr };
     (Object.keys(cand) as (keyof typeof cand)[]).forEach((k) => {
       this.runs[k] = cand[k] >= this.dec.p_min ? this.runs[k] + 1 : 0;
     });
@@ -291,38 +298,23 @@ export class Decoder {
     if (this.gazeMoves && this.runs.move >= this.dec.consec.move && headStill) {
       emit({ type: "move", dir: pl >= pr ? -1 : 1 });
       this.latched = true;
-    } else if (this.runs.undo >= this.dec.consec.undo) {
-      emit({ type: "undo" });
-      this.latched = true;
     }
   }
 
-  private rulesGazeBrow(row: Row, emit: Emit) {
-    const { left, right, brow } = this.cal.peaks;
-    if (this.gazeMoves) {
-      const side: -1 | 0 | 1 = row.h_rel > 0.5 * left ? -1 : row.h_rel < 0.5 * right ? 1 : 0;
-      const m = this.ruleMove;
-      if (m.latched) {
-        if (Math.abs(row.h_rel) < 0.25 * Math.min(Math.abs(left), Math.abs(right))) m.latched = false; // back to center
-      } else if (side !== m.side) {
-        m.side = side;
-        m.since = row.t;
-      } else if (side !== 0 && row.t - m.since >= 0.3) {
-        emit({ type: "move", dir: side });
-        m.latched = true;
-        m.side = 0;
-      }
+  private rulesGaze(row: Row, emit: Emit) {
+    if (!this.gazeMoves) return;
+    const { left, right } = this.cal.peaks;
+    const side: -1 | 0 | 1 = row.h_rel > 0.5 * left ? -1 : row.h_rel < 0.5 * right ? 1 : 0;
+    const m = this.ruleMove;
+    if (m.latched) {
+      if (Math.abs(row.h_rel) < 0.25 * Math.min(Math.abs(left), Math.abs(right))) m.latched = false; // back to center
+    } else if (side !== m.side) {
+      m.side = side;
+      m.since = row.t;
+    } else if (side !== 0 && row.t - m.since >= 0.3) {
+      emit({ type: "move", dir: side });
+      m.latched = true;
+      m.side = 0;
     }
-    const b = this.ruleBrow;
-    if (b.latched) {
-      if (row.brow_rel < 0.25 * brow) b.latched = false;
-    } else if (row.brow_rel > 0.5 * brow) {
-      if (b.since < 0) b.since = row.t;
-      else if (row.t - b.since >= 0.2) {
-        emit({ type: "undo" });
-        b.latched = true;
-        b.since = -1;
-      }
-    } else b.since = -1;
   }
 }

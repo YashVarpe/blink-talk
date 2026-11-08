@@ -52,7 +52,7 @@ export default function Calibrate() {
           {step ? step.title : "Calibration"}
         </h1>
         <p className="max-w-xl text-2xl leading-relaxed text-muted">
-          {error ?? step?.instruction ?? "Sit like you will during use, face centered. About 40 seconds: relax, look left, look right, long blinks, raise eyebrows."}
+          {error ?? step?.instruction ?? "Sit like you will during use, face centered. About 35 seconds: relax, look left, look right, long blinks."}
         </p>
         <video
           ref={video}

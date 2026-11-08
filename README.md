@@ -24,10 +24,11 @@ Built at **UB Hacking 2026**.
 | Gesture | Action |
 |---|---|
 | Look left / right | Move highlight |
-| Long blink (0.6–5 s) | Select |
-| Eyebrow raise | Undo |
-| 3 quick blinks | Emergency alert (5 s to cancel) |
-| Eyes closed > 5 s | Rest mode |
+| Long blink (eyes closed 0.45–1.7 s) | Select |
+| 5 quick blinks within 2.5 s, or eyes closed 2–4 s | Emergency alert (5 s to cancel with a long blink) |
+| Eyes closed > 5 s | Rest mode (long blink wakes) |
+
+After a reply is chosen, the replies stay disabled until the caregiver's next message and its new replies are ready.
 
 ## Architecture
 
@@ -48,7 +49,7 @@ Built at **UB Hacking 2026**.
 
 | Folder | What | Owner |
 |---|---|---|
-| `web/` | Next.js frontend: talk board, spelling, calibration, caregiver view, results | Yudi (eye-tracking libs: Yash) |
+| `web/` | Next.js frontend: talk board, calibration, caregiver view, results | Yudi (eye-tracking libs: Yash) |
 | `api/` | FastAPI backend: suggest, speak, messages, alerts, profile | AT (`gemini.py`: Yash, `events.py`: Om) |
 | `ml/` | Eye-signal recordings, classifier training, ONNX export | Yash |
 | `deploy/` | Vultr server, Caddy HTTPS, systemd, deploy/rollback scripts | Om |

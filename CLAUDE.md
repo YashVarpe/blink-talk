@@ -27,7 +27,6 @@ caregiver just said; ElevenLabs speaks the chosen reply in the user's (cloned) v
 blinktalk/
 ├── web/                  Next.js + TypeScript (Yudi; Yash owns web/lib/face.ts, signals.ts, calibrate.ts, stt.ts)
 │   ├── app/talk/         talk board (main screen)
-│   ├── app/spell/        spelling board
 │   ├── app/calibrate/    calibration
 │   ├── app/caregiver/    caregiver view (2nd device)
 │   ├── app/results/      measured results for judges
@@ -85,18 +84,17 @@ type SignalEvent =
   | { type: "move"; dir: -1 | 1 }           // look left / right
   | { type: "hold"; progress: number }      // 0..1 while eyes closed, drives the progress ring
   | { type: "select" }                      // long blink completed
-  | { type: "undo" }                        // eyebrow raise
-  | { type: "emergency" }                   // three quick blinks (UI shows 5 s cancel)
-  | { type: "rest"; on: boolean }           // eyes closed > 5 s / reopened
+  | { type: "emergency" }                   // 5 quick blinks within 2.5 s, or eyes closed 2–4 s (UI shows 5 s cancel)
+  | { type: "rest"; on: boolean }           // eyes closed > 5 s / woken by a long blink
   | { type: "face"; found: boolean };       // face lost / found
 startTracking(video: HTMLVideoElement, onEvent: (e: SignalEvent) => void): Promise<() => void>; // returns stop()
 ```
-**Speech-to-text (web/lib/stt.ts):** `startListening(onFinal: (text: string) => void): () => void`
+**Speech-to-text (web/lib/stt.ts):** `startListening(onFinal: (text: string) => void, onUnavailable?: () => void): () => void`
 
 **Gemini (api/gemini.py):** `def suggest(transcript: str | None, history: list[Message], profile: Profile, local_time: str) -> list[str]` — always returns exactly 6 phrases or raises.
 
 ## Signal rules (v1; classifier replaces the thresholds in v2)
-- Eyes closed < 0.4 s → natural blink, ignored (counts toward triple-blink only). 0.6–5 s → `select`. > 5 s → `rest`.
+- Eyes closed < 0.4 s → natural blink, ignored (counts toward the 5-blink emergency only). 0.45–1.7 s → `select`. 2–4 s → `emergency`. > 5 s → `rest`.
 - Look score above threshold for 0.3 s → `move`; must return to center before the next move.
-- 3 short blinks within 1.5 s → `emergency`. Eyebrow raise → `undo`.
+- 5 short blinks within 2.5 s → `emergency` (re-openings < 0.1 s count as the same blink). No eyebrow gesture, no keyboard.
 - Thresholds come from calibration (halfway between resting and action scores per user).

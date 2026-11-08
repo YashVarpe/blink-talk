@@ -43,7 +43,7 @@ live demo (no emergency alert, no stored messages). Run it after every deploy.
 
 ## fallbacks.py
 Time-of-day phrase sets (morning / afternoon / evening / night) + general needs ("I'm in pain", "I need the nurse",
-"Thank you", "Yes", "No", "Spell something"). Used when Gemini fails and to pad to 6.
+"Thank you", "Yes", "No", "Please wait"). Used when Gemini fails and to pad to 6.
 
 ## Data (db.py, SQLite file `api/blinktalk.db`)
 Tables: `messages(id TEXT PK, role TEXT, text TEXT, ts TEXT)`, `profile(id INTEGER PK CHECK(id=1), data TEXT)`,

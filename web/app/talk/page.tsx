@@ -1,23 +1,20 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { DEFAULT_PHRASES, postAlert, postMessage, postStatus, speak, suggest } from "@/lib/api";
 import { useSignals } from "@/lib/useSignals";
 import { moveSound, selectSound } from "@/lib/sound";
 import { Tile } from "@/lib/Tile";
 import type { Message } from "@/lib/types";
-import type { SignalEvent } from "@/lib/mockSignals";
+import type { SignalEvent } from "@/lib/signals";
 import { useKeepWarm } from "@/lib/useKeepWarm";
 import { muteListening, startListening, sttSupported } from "@/lib/stt";
-
-const SPELL = "Spell something";
+import { ReplyLock } from "@/lib/replyLock";
 
 /** Roughly how long our own voice plays for `text` (~15 chars/s) plus a margin, so STT ignores it. */
 const speakingMs =(text: string) => Math.min(10000, 1500 + text.length * 70);
 
 export default function Talk() {
-  const router = useRouter();
   useKeepWarm();
   const [phrases, setPhrases] = useState<string[]>(DEFAULT_PHRASES);
   const [idx, setIdx] = useState(0);
@@ -30,7 +27,10 @@ export default function Talk() {
   const [emergency, setEmergency] = useState<number | null>(null); // seconds left
   const [mic, setMic] = useState<"on" | "off" | null>(null); // null until we know (client only)
   const history = useRef<Message[]>([]);
-  const tiles = [...phrases.slice(0, 5), SPELL];
+  // After a pick, all replies stay disabled until the caregiver's next message has new replies ready.
+  const lock = useRef(new ReplyLock());
+  const [locked, setLocked] = useState(false);
+  const tiles = phrases.slice(0, 6);
 
   // Emergency countdown: 5 s to cancel, then alert.
   useEffect(() => {
@@ -42,21 +42,25 @@ export default function Talk() {
 
   const choose = useCallback(async (i: number) => {
     const label = tiles[i];
-    if (label === SPELL) { router.push("/spell"); return; }
+    if (!label || !lock.current.tryLock()) return; // already answered: wait for the caregiver
+    setLocked(lock.current.isLocked); setProgress(0);
     setFlash(i); selectSound(); setSpoken(label);
     setTimeout(() => setFlash(null), 600);
     muteListening(speakingMs(label)); // don't transcribe our own voice as the caregiver
     speak(label); // speak first, so the voice never waits on a network call
     const m = await postMessage("user", label);
     if (m) history.current.push(m);
-  }, [tiles, router]);
+  }, [tiles]);
 
   const onCaregiver = useCallback(async (text: string) => {
+    const id = lock.current.caregiverSaid();
     setBanner(text);
     const m = await postMessage("caregiver", text);
     if (m) history.current.push(m);
     const s = await suggest(text, history.current.slice(-10));
+    if (!lock.current.repliesReady(id)) return; // stale: a newer message is coming, or the user already answered this one
     if (s && s.phrases.length >= 5) { setPhrases(s.phrases); setIdx(0); } // on failure keep old tiles
+    setLocked(false);
   }, []);
 
   useSignals((e: SignalEvent) => {
@@ -64,10 +68,11 @@ export default function Talk() {
       if (e.type === "select") { setEmergency(null); postAlert("emergency_cancelled"); selectSound(); }
       return;
     }
+    const waiting = lock.current.isLocked; // replies disabled until the caregiver answers
     switch (e.type) {
-      case "move": if (!resting) { setIdx((i) => (i + e.dir + tiles.length) % tiles.length); moveSound(); } break;
-      case "hold": setProgress(e.progress); break;
-      case "select": if (!resting) choose(idx); break;
+      case "move": if (!resting && !waiting) { setIdx((i) => (i + e.dir + tiles.length) % tiles.length); moveSound(); } break;
+      case "hold": setProgress(waiting ? 0 : e.progress); break;
+      case "select": if (!resting && !waiting) choose(idx); break;
       case "emergency": setEmergency(5); break;
       case "rest": setResting(e.on); postStatus(e.on ? "resting" : "active"); break;
       case "face": setFaceLost(!e.found); postStatus(e.found ? "active" : "face_lost"); break;
@@ -75,17 +80,12 @@ export default function Talk() {
   });
 
   // Caregiver speech → tiles. Web Speech API (Chrome / Edge / Safari); stt.ts auto-restarts.
+  // Without a microphone no caregiver message can arrive, so the replies must never stay locked.
   useEffect(() => {
-    if (!sttSupported()) { setMic("off"); return; }
+    const unavailable = () => { setMic("off"); lock.current.release(); setLocked(false); };
+    if (!sttSupported()) { unavailable(); return; }
     setMic("on");
-    return startListening((text) => { if (text.length >= 2) onCaregiver(text); });
-  }, [onCaregiver]);
-
-  // Backup (no mic, or demo noise): press "C" to simulate a caregiver question.
-  useEffect(() => {
-    const h = (ev: KeyboardEvent) => { if (ev.key === "c") onCaregiver("Are you in pain?"); };
-    window.addEventListener("keydown", h);
-    return () => window.removeEventListener("keydown", h);
+    return startListening((text) => { if (text.length >= 2) onCaregiver(text); }, unavailable);
   }, [onCaregiver]);
 
   return (
@@ -98,7 +98,7 @@ export default function Talk() {
         <div className="flex items-center gap-3 text-lg">
           {mic && (
             <span className={`rounded-full px-4 py-2 font-medium ${mic === "on" ? "bg-good/15 text-good" : "bg-warn/15 text-warn"}`}>
-              {mic === "on" ? "Listening" : "No mic: press C"}
+              {mic === "on" ? "Listening" : "No microphone"}
             </span>
           )}
           <span className={`flex items-center gap-2 rounded-full px-4 py-2 font-medium ${faceLost ? "bg-danger/20 text-danger" : "bg-good/15 text-good"}`}>
@@ -117,6 +117,7 @@ export default function Talk() {
             active={i === idx}
             flash={flash === i}
             progress={i === idx ? progress : 0}
+            disabled={locked}
             onHover={() => setIdx(i)}
             onPick={() => choose(i)}
           />
@@ -125,7 +126,6 @@ export default function Talk() {
 
       <footer className="flex flex-wrap items-center justify-center gap-3 text-lg text-muted" aria-live="polite">
         <span>{spoken ? `Speaking: “${spoken}”` : "Look left or right to move · long blink to select"}</span>
-        <span className="rounded-full bg-surface px-4 py-1 text-sm">Keys: ← → move · hold Space select · E emergency · R rest · F face · C caregiver</span>
       </footer>
 
       {resting && (
