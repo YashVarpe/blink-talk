@@ -112,7 +112,49 @@
     animation: horizon-roll 2.4s linear infinite;
   }
 }
+/* Logo: glowing wordmark and an eye that blinks */
+.wordmark-glow {
+  text-shadow: 0 0 22px rgba(178, 173, 74, 0.35), 0 0 64px rgba(195, 209, 185, 0.22);
+  animation: wordmark-pulse 4.5s ease-in-out infinite;
+}
+.logo-glow {
+  filter: drop-shadow(0 0 14px rgba(178, 173, 74, 0.5));
+  animation: logo-pulse 4.5s ease-in-out infinite;
+}
+.eye-blink {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: eye-blink 5s ease-in-out infinite;
+}
 
+@keyframes wordmark-pulse {
+  0%,
+  100% {
+    text-shadow: 0 0 22px rgba(178, 173, 74, 0.3), 0 0 64px rgba(195, 209, 185, 0.18);
+  }
+  50% {
+    text-shadow: 0 0 30px rgba(178, 173, 74, 0.6), 0 0 90px rgba(195, 209, 185, 0.35);
+  }
+}
+@keyframes logo-pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 10px rgba(178, 173, 74, 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 0 22px rgba(178, 173, 74, 0.75));
+  }
+}
+@keyframes eye-blink {
+  0%,
+  88%,
+  100% {
+    transform: scaleY(1);
+  }
+  92% {
+    transform: scaleY(0.06);
+  }
+}
 @keyframes glow-flow {
   to {
     background-position: 300% 0;
