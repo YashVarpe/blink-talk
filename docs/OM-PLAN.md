@@ -1,4 +1,4 @@
-# AT — Plan of Action (infra, deploy, live events)
+# Om — Plan of Action (infra, deploy, live events)
 
 ## What my part is, in one paragraph
 
@@ -16,10 +16,10 @@ uptime, latency numbers, and the one-command rollback.
 | 2 | Domain + automatic HTTPS (Caddy) | `deploy/Caddyfile` | everyone (camera/mic) | **Sat 6:30 PM** |
 | 3 | api + web as restart-on-failure services | `deploy/blinktalk-api.service`, `deploy/blinktalk-web.service` | everyone | Sat 6:30 PM |
 | 4 | One-command deploy | `deploy/deploy.sh` | everyone | Sat 6:30 PM |
-| 5 | Secrets on server, key names in repo | `/srv/blinktalk/.env`, `.env.example` | Om, Yash | Sat 6:30 PM |
-| 6 | SSE broadcaster | `api/events.py` | Om (publishes), Yudi (caregiver view listens) | Sat 8:00 PM |
+| 5 | Secrets on server, key names in repo | `/srv/blinktalk/.env`, `.env.example` | AT, Yash | Sat 6:30 PM |
+| 6 | SSE broadcaster | `api/events.py` | AT (publishes), Yudi (caregiver view listens) | Sat 8:00 PM |
 | 7 | Health + status tooling | `/api/health`, `deploy/status.sh` | me, judges' demo | Sat 9:00 PM |
-| 8 | Light rate limits on `/suggest`, `/speak` | Caddy or `api/` middleware (with Om) | protects API credits | Sat night |
+| 8 | Light rate limits on `/suggest`, `/speak` | Caddy or `api/` middleware (with AT) | protects API credits | Sat night |
 | 9 | Device testing + latency numbers | notes → Yudi for `/results` | Yudi | Sun 9:00 AM |
 | 10 | `demo` tag + one-command rollback | `deploy/rollback.sh` | everyone | **Sun 10:00 AM** |
 | 11 | Redeploy runbook | `deploy/README.md` | anyone at 4 AM | ongoing |
@@ -40,7 +40,7 @@ uptime, latency numbers, and the one-command rollback.
  │  Caddy :443 (auto HTTPS, $DOMAIN)                                  │
  │    /api/*  → uvicorn :8000  (FastAPI, 1 worker, flush_interval -1) │
  │    else    → next start :3000                                      │
- │  api/events.py: in-memory set of asyncio.Queue  ← publish() by Om  │
+ │  api/events.py: in-memory set of asyncio.Queue  ← publish() by AT  │
  │  /srv/blinktalk/.env (secrets)   SQLite + audio_cache on disk      │
  └────────────────────────────────────────────────────────────────────┘
 ```
@@ -52,7 +52,7 @@ caregiver connected to worker B.
 
 ## Phase 1 — Server + HTTPS (first hour, BLOCKING for everyone)
 
-Branch: `at/server-setup`
+Branch: `om/server-setup`
 
 ### 1.1 Create the Vultr instance
 - Vultr dashboard → Cloud Compute → Ubuntu 24.04 LTS, 2 vCPU / 4 GB (Next.js build needs the RAM), region closest to Buffalo (New York / NJ).
@@ -106,7 +106,7 @@ Optional hardening if time: `PasswordAuthentication no` and `PermitRootLogin no`
 (Note: `encode gzip` may buffer SSE — if events arrive late, remove it from the `/api/*` path first.)
 
 ### 1.5 Placeholder apps so HTTPS can go live before real code exists
-Until Om and Yudi merge, run a tiny FastAPI with `/api/health` and a `next` hello page. This lets the team test camera
+Until AT and Yudi merge, run a tiny FastAPI with `/api/health` and a `next` hello page. This lets the team test camera
 permission on the real URL **before** the real app exists.
 
 **Done when:** `https://$DOMAIN` loads with a padlock on my phone, `curl https://$DOMAIN/api/health` → `{"ok":true}`.
@@ -116,7 +116,7 @@ permission on the real URL **before** the real app exists.
 
 ## Phase 2 — Services + one-command deploy (by Sat 6:30 PM)
 
-Branch: `at/services`
+Branch: `om/services`
 
 ### 2.1 `deploy/blinktalk-api.service`
 ```ini
@@ -160,7 +160,7 @@ sleep 3 && curl -fsS "https://$(grep ^DOMAIN= .env | cut -d= -f2)/api/health" &&
 ```
 
 ### 2.4 Secrets
-- `/srv/blinktalk/.env`, `chmod 600`, owner `deploy`. Fill from the keys Om/Yash got.
+- `/srv/blinktalk/.env`, `chmod 600`, owner `deploy`. Fill from the keys AT/Yash got.
 - `.env.example` in git lists names only (already done).
 - Share real values with teammates by DM only.
 
@@ -170,7 +170,7 @@ sleep 3 && curl -fsS "https://$(grep ^DOMAIN= .env | cut -d= -f2)/api/health" &&
 
 ## Phase 3 — `api/events.py` SSE broadcaster (by Sat 8:00 PM)
 
-Branch: `at/sse`
+Branch: `om/sse`
 
 ```python
 # api/events.py
@@ -182,7 +182,7 @@ router = APIRouter()
 _subscribers: set[asyncio.Queue] = set()
 
 def publish(event: str, data: dict) -> None:
-    """Called by Om's routes: publish("message" | "alert" | "status", data). Never blocks."""
+    """Called by AT's routes: publish("message" | "alert" | "status", data). Never blocks."""
     msg = f"event: {event}\ndata: {json.dumps(data)}\n\n"
     for q in list(_subscribers):
         try:
@@ -210,10 +210,10 @@ async def events(request: Request):
                              headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 ```
 
-**Integration (agree with Om):**
-- Om adds `app.include_router(events.router)` in `main.py` and calls `publish(...)` in `POST /api/messages`, `/api/alert`, `/api/status`.
+**Integration (agree with AT):**
+- AT adds `app.include_router(events.router)` in `main.py` and calls `publish(...)` in `POST /api/messages`, `/api/alert`, `/api/status`.
 - Payloads exactly as in `CLAUDE.md`: `message` = `Message`, `alert` = `{type, ts}`, `status` = `{state, ts}`.
-- Until Om's routes exist, I add a dev-only `POST /api/_debug/publish` to test end-to-end (remove before freeze).
+- Until AT's routes exist, I add a dev-only `POST /api/_debug/publish` to test end-to-end (remove before freeze).
 
 **Integration (tell Yudi):** caregiver view does
 ```ts
@@ -235,9 +235,9 @@ Also test: 3 caregiver tabs open at once all receive it; close a tab → subscri
 
 ## Phase 4 — Reliability + protection (Sat night)
 
-Branch: `at/reliability`
+Branch: `om/reliability`
 
-- **`/api/health`** — returns `{ "ok": true }` (coordinate with Om; I can add it in `events.py` router if he hasn't).
+- **`/api/health`** — returns `{ "ok": true }` (coordinate with AT; I can add it in `events.py` router if they haven't).
 - **External uptime check** — free UptimeRobot (or a cron `curl` on my laptop) hitting `/api/health` every minute → phone alert.
 - **`deploy/status.sh`**
   ```bash
@@ -248,9 +248,9 @@ Branch: `at/reliability`
   echo "--- disk ---";      df -h / | tail -1;  du -sh /srv/blinktalk/api/audio_cache
   ```
 - **Rate limits** (protect Gemini/ElevenLabs credits): simplest is a small in-memory per-IP limiter as FastAPI middleware for
-  `/api/suggest` (~30/min) and `/api/speak` (~20/min), returning `429`. Coordinate with Om since it touches `main.py`.
+  `/api/suggest` (~30/min) and `/api/speak` (~20/min), returning `429`. Coordinate with AT since it touches `main.py`.
   Caddy doesn't rate-limit without a plugin — don't spend time building a custom Caddy.
-- **Never log API keys:** check uvicorn logs don't print request headers; Om's code must not `print(os.environ)`.
+- **Never log API keys:** check uvicorn logs don't print request headers; AT's code must not `print(os.environ)`.
 - **Log rotation:** journald handles it; cap with `SystemMaxUse=200M` in `/etc/systemd/journald.conf`.
 - **Vultr snapshot** of the server once it works (one click in dashboard) — the ultimate rollback.
 
@@ -268,7 +268,7 @@ On venue Wi-Fi, on the real URL:
 | Phone as caregiver | `alert` arrives in < 1 s; reconnects after toggling airplane mode | |
 | Phone screen locked 2 min | On unlock, EventSource reconnects and shows latest state | |
 
-**Latency (with Om):** measure "caregiver stops talking → audio starts playing". Log `performance.now()` at STT final, at `/suggest`
+**Latency (with AT):** measure "caregiver stops talking → audio starts playing". Log `performance.now()` at STT final, at `/suggest`
 response, at tile select, at first audio byte. Run 10 trials, report **median and p90** for each leg to Yudi for `/results`.
 Also measure SSE delivery time (publish → caregiver receives).
 
@@ -311,7 +311,7 @@ exec /srv/blinktalk/deploy/deploy.sh demo
 |---|---|---|
 | Hour 1 | Vultr box, firewall, Caddy, sslip.io HTTPS with placeholder app | everyone can test camera/mic on HTTPS |
 | → 6:30 PM | systemd services, `deploy.sh`, `.env` on server, real app deployed | team tests on the shared URL |
-| → 8:00 PM | `api/events.py` merged, Om publishing, Yudi listening | caregiver live alerts |
+| → 8:00 PM | `api/events.py` merged, AT publishing, Yudi listening | caregiver live alerts |
 | → 9:00 PM | health, `status.sh`, first deploy of basic demo | **basic demo milestone** |
 | Night | rate limits, uptime check, snapshot, `deploy/README.md` | safe overnight |
 | → 9:00 AM | device matrix + latency numbers to Yudi | results page |
@@ -327,7 +327,7 @@ exec /srv/blinktalk/deploy/deploy.sh demo
 | SSE events delayed | remove `encode gzip` from `/api/*`; confirm `flush_interval -1`; check `X-Accel-Buffering` |
 | Venue Wi-Fi blocks / flaky | phone hotspot; the app's own fallbacks (default phrases, cached audio) keep it usable |
 | Bad merge right before demo | `rollback.sh` (git tag) → if server itself is broken, restore Vultr snapshot |
-| API credits burn out | rate limits + Om's audio cache; keep a spare key |
+| API credits burn out | rate limits + AT's audio cache; keep a spare key |
 
 ## Branches I'll open (in order)
-`at/server-setup` → `at/services` → `at/sse` → `at/reliability` → `at/rollback`. Each one is small and merges the same hour it's opened.
+`om/server-setup` → `om/services` → `om/sse` → `om/reliability` → `om/rollback`. Each one is small and merges the same hour it's opened.

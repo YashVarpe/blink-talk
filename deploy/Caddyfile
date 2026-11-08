@@ -1,0 +1,18 @@
+# Installed at /etc/caddy/Caddyfile. DOMAIN comes from /srv/blinktalk/.env
+# (via the systemd drop-in /etc/systemd/system/caddy.service.d/env.conf).
+# Caddy gets and renews the HTTPS certificate for {$DOMAIN} by itself.
+
+{$DOMAIN} {
+	# Backend (FastAPI). No gzip and no buffering here, so SSE events arrive instantly.
+	handle /api/* {
+		reverse_proxy localhost:8000 {
+			flush_interval -1
+		}
+	}
+
+	# Everything else: the Next.js website.
+	handle {
+		encode gzip
+		reverse_proxy localhost:3000
+	}
+}
