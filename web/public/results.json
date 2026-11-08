@@ -1,0 +1,56 @@
+{
+  "eye_classifier": {
+    "evaluation": "leave-one-person-out, 4 people incl. 2 glasses sessions; decoded frame-by-frame like the live app",
+    "settings": {
+      "move_dwell_s": 0.3,
+      "blink_select_s": 0.45
+    },
+    "detection": {
+      "long_blink": {
+        "detected": 60,
+        "trials": 60
+      },
+      "left": {
+        "detected": 47,
+        "trials": 48
+      },
+      "right": {
+        "detected": 48,
+        "trials": 48
+      },
+      "brow_up": {
+        "detected": 32,
+        "trials": 36
+      }
+    },
+    "false_per_min_while_talking": {
+      "classifier": {
+        "select": 0.84,
+        "move": 6.72,
+        "undo": 0.6,
+        "emergency": 0.24
+      },
+      "rules_baseline": {
+        "select": 0.48,
+        "move": 16.2,
+        "undo": 0.48
+      }
+    },
+    "window_recall": {
+      "idle": 0.998,
+      "natural_blink": 0.974,
+      "long_blink": 1.0,
+      "left": 0.989,
+      "right": 0.98,
+      "brow_up": 0.907
+    }
+  },
+  "gemini": {
+    "model": "gemini-3.5-flash-lite",
+    "questions": 20,
+    "hit_rate": 0.95,
+    "p50_s": 0.8178631067276001,
+    "p95_s": 0.9270951747894287,
+    "over_3_5s": 0
+  }
+}
