@@ -67,21 +67,27 @@ function beep(freq: number) {
   }
 }
 
+/** Subscribe to face frames from a tracker that is already running; returns unsubscribe. */
+export type FrameSource = (onFrame: (f: Frame) => void) => () => void;
+
 /**
  * Runs the guided calibration on `video` (shows the camera if it is visible), reports each step via onStep,
  * saves and returns the calibration. Abort with opts.signal.
+ * opts.source: use frames from a tracker the page already runs (only one MediaPipe loop per camera);
+ * without it, calibration starts and stops its own camera.
  */
 export async function runCalibration(
   video: HTMLVideoElement,
   onStep: (s: CalStep) => void,
-  opts: { signal?: AbortSignal } = {},
+  opts: { signal?: AbortSignal; source?: FrameSource } = {},
 ): Promise<Calibration> {
   const frames: Frame[] = [];
   let faceFound = false;
-  const stop = await startFace(video, (f) => {
+  const handle = (f: Frame) => {
     faceFound = f.faceFound;
     if (f.faceFound) frames.push(f);
-  });
+  };
+  const stop = opts.source ? opts.source(handle) : await startFace(video, handle);
   const now = () => performance.now() / 1000;
   const sleep = (s: number) =>
     new Promise<void>((resolve, reject) => {
