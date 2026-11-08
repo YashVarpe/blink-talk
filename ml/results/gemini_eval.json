@@ -1,0 +1,359 @@
+{
+  "best": "gemini-3.5-flash-lite",
+  "n_tests": 20,
+  "summary": {
+    "gemini-3.5-flash-lite": {
+      "hit_rate": 0.95,
+      "p50_s": 0.8178631067276001,
+      "p95_s": 0.9270951747894287,
+      "over_3_5s": 0,
+      "thinking": "include_thoughts=None thinking_budget=None thinking_level=<ThinkingLevel.MINIMAL: 'MINIMAL'>"
+    }
+  },
+  "results": {
+    "gemini-3.5-flash-lite": {
+      "hit_rate": 0.95,
+      "p50_s": 0.8178631067276001,
+      "p95_s": 0.9270951747894287,
+      "over_3_5s": 0,
+      "thinking": "include_thoughts=None thinking_budget=None thinking_level=<ThinkingLevel.MINIMAL: 'MINIMAL'>",
+      "rows": [
+        {
+          "q": "Do you want water or juice?",
+          "accept": [
+            "juice"
+          ],
+          "phrases": [
+            "Juice please",
+            "Water please",
+            "Apple juice sounds good",
+            "My throat is dry",
+            "I am thirsty",
+            "Not now, thanks"
+          ],
+          "latency": 0.7762107849121094,
+          "hit": true
+        },
+        {
+          "q": "Are you in any pain right now?",
+          "accept": [
+            "yes"
+          ],
+          "phrases": [
+            "Yes, I hurt a bit",
+            "No, I feel fine",
+            "Please help me move",
+            "I need some water",
+            "Can Sara call soon",
+            "Not now, thanks"
+          ],
+          "latency": 0.7939510345458984,
+          "hit": true
+        },
+        {
+          "q": "Are you cold?",
+          "accept": [
+            "no"
+          ],
+          "phrases": [
+            "Yes, I am cold",
+            "No, I am fine",
+            "Please close the window",
+            "Can I have water",
+            "Help me change position",
+            "Not now, thanks"
+          ],
+          "latency": 0.9236569404602051,
+          "hit": true
+        },
+        {
+          "q": "Do you want me to turn on the TV?",
+          "accept": [
+            "yes"
+          ],
+          "phrases": [
+            "Yes, please",
+            "No, thank you",
+            "Listen to the Beatles",
+            "Open the blinds",
+            "Call my daughter Sara",
+            "Not now, thanks"
+          ],
+          "latency": 0.8458101749420166,
+          "hit": true
+        },
+        {
+          "q": "Do you want to sit up a bit?",
+          "accept": [
+            "yes",
+            "sit up"
+          ],
+          "phrases": [
+            "Yes please help me sit",
+            "No I am fine lying down",
+            "I need help changing position",
+            "Let us leave the blinds open",
+            "Can Sara call soon please",
+            "Not now thanks"
+          ],
+          "latency": 0.8578372001647949,
+          "hit": true
+        },
+        {
+          "q": "How are you feeling today?",
+          "accept": [
+            "tired"
+          ],
+          "phrases": [
+            "I need some water",
+            "I want help changing position",
+            "My throat needs suction",
+            "I am doing alright today",
+            "Let us listen to Beatles",
+            "Not now, thanks"
+          ],
+          "latency": 0.8181540966033936,
+          "hit": false
+        },
+        {
+          "q": "Do you need the bathroom?",
+          "accept": [
+            "yes",
+            "bathroom"
+          ],
+          "phrases": [
+            "Yes please",
+            "No thank you",
+            "I need help changing position",
+            "Can you call Priya",
+            "Let us wait a little",
+            "Not now, thanks"
+          ],
+          "latency": 0.9270951747894287,
+          "hit": true
+        },
+        {
+          "q": "Do you want me to read to you?",
+          "accept": [
+            "not now",
+            "later"
+          ],
+          "phrases": [
+            "Yes, please read to me",
+            "No, I am too tired",
+            "Let us listen to music",
+            "Put on the Beatles please",
+            "Maybe call Sara instead",
+            "Not now, thanks"
+          ],
+          "latency": 0.8555481433868408,
+          "hit": true
+        },
+        {
+          "q": "Is the music too loud?",
+          "accept": [
+            "too loud",
+            "yes",
+            "turn it down",
+            "lower"
+          ],
+          "phrases": [
+            "Yes, please turn it down",
+            "No, it sounds fine",
+            "I like the Beatles",
+            "Can you play something else",
+            "Leave it playing softly",
+            "Not now, thanks"
+          ],
+          "latency": 0.9991040229797363,
+          "hit": true
+        },
+        {
+          "q": "Did you sleep well last night?",
+          "accept": [
+            "no",
+            "not well",
+            "didn't sleep"
+          ],
+          "phrases": [
+            "Yes, I slept quite well",
+            "No, I did not sleep well",
+            "I need to change position",
+            "Please open the blinds",
+            "I am ready for evening",
+            "Later, please"
+          ],
+          "latency": 0.7734110355377197,
+          "hit": true
+        },
+        {
+          "q": "Who should I call?",
+          "accept": [
+            "sara"
+          ],
+          "phrases": [
+            "Call my daughter Sara.",
+            "Call Alex.",
+            "Is Sara calling soon?",
+            "Ask Alex to visit.",
+            "Priya can help.",
+            "Not now, thanks."
+          ],
+          "latency": 0.7577269077301025,
+          "hit": true
+        },
+        {
+          "q": "Do you want the blinds open or closed?",
+          "accept": [
+            "open"
+          ],
+          "phrases": [
+            "Open please",
+            "Closed please",
+            "Let some light in",
+            "I like the view",
+            "The room is dark",
+            "Not now, thanks"
+          ],
+          "latency": 0.8836359977722168,
+          "hit": true
+        },
+        {
+          "q": "Are you hungry?",
+          "accept": [
+            "yes",
+            "hungry"
+          ],
+          "phrases": [
+            "Yes",
+            "No",
+            "Apple juice please",
+            "Just some water",
+            "Not feeling hungry",
+            "Not now thanks"
+          ],
+          "latency": 0.7971019744873047,
+          "hit": true
+        },
+        {
+          "q": "Do you want your blanket?",
+          "accept": [
+            "yes",
+            "blanket"
+          ],
+          "phrases": [
+            "Yes please",
+            "No thank you",
+            "A bit cold",
+            "Open blinds please",
+            "Play the Beatles",
+            "Not now, thanks"
+          ],
+          "latency": 0.8081378936767578,
+          "hit": true
+        },
+        {
+          "q": "Can I get you anything?",
+          "accept": [
+            "water"
+          ],
+          "phrases": [
+            "I need some water please",
+            "Can you help me shift",
+            "Play some Beatles music",
+            "Please open the blinds",
+            "Is Sara calling soon",
+            "Not now, thanks"
+          ],
+          "latency": 0.9226410388946533,
+          "hit": true
+        },
+        {
+          "q": "Is your position comfortable?",
+          "accept": [
+            "no",
+            "move",
+            "uncomfortable",
+            "adjust"
+          ],
+          "phrases": [
+            "Yes, it is comfortable.",
+            "No, change my position.",
+            "I need to move.",
+            "Can you adjust me?",
+            "Help me shift over.",
+            "Not now, thanks"
+          ],
+          "latency": 0.8160171508789062,
+          "hit": true
+        },
+        {
+          "q": "Want to listen to some music?",
+          "accept": [
+            "beatles"
+          ],
+          "phrases": [
+            "Yes, play the Beatles",
+            "No, I am too tired",
+            "Turn on some music please",
+            "I want to listen now",
+            "Let us hear a song",
+            "Not now, thanks"
+          ],
+          "latency": 0.8971929550170898,
+          "hit": true
+        },
+        {
+          "q": "Should I turn off the light?",
+          "accept": [
+            "yes"
+          ],
+          "phrases": [
+            "Yes please",
+            "No leave it",
+            "I want some water",
+            "Please help me move",
+            "Play the Beatles",
+            "Later please"
+          ],
+          "latency": 0.745568037033081,
+          "hit": true
+        },
+        {
+          "q": "Priya is here, do you want to see her?",
+          "accept": [
+            "yes"
+          ],
+          "phrases": [
+            "Yes, send Priya in.",
+            "No, not right now.",
+            "I need some water please.",
+            "Can you change my position?",
+            "My daughter Sara should call soon.",
+            "Not now, thanks."
+          ],
+          "latency": 0.8175721168518066,
+          "hit": true
+        },
+        {
+          "q": "Do you need suction?",
+          "accept": [
+            "yes",
+            "suction"
+          ],
+          "phrases": [
+            "Yes, I need suction",
+            "No, I do not",
+            "Can you help me reposition?",
+            "Could I have water",
+            "Please open the blinds",
+            "Later, please"
+          ],
+          "latency": 0.8149609565734863,
+          "hit": true
+        }
+      ]
+    }
+  },
+  "system": "You suggest spoken replies for a person who cannot speak and picks a reply with their eyes.\nWrite as that person, in the first person. \n\nRules:\n- Return exactly 6 replies, each at most 6 words, plain words, no emojis, no quotes.\n- Replies 1-2 must directly answer what the caregiver just said.\n  For a yes/no question: reply 1 starts with \"Yes\", reply 2 starts with \"No\".\n  For a choice (\"A or B?\"): replies 1-2 pick each option (the profile's preferred option first).\n  For an open question (\"anything?\", \"how are you?\"): lead with the profile's needs.\n- Replies 3-5 stay on the caregiver's topic first; use profile needs, people and preferences only when they fit.\n  Do not mention the same preference in every answer.\n- Reply 6 is always a short way to defer, like \"Not now, thanks\" or \"Later, please\".\n- Never give medical advice, diagnoses or medication instructions.\n- If the caregiver said nothing, suggest useful openers for the time of day.\n- Only mention people who are in the profile."
+}
