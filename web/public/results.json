@@ -1,4 +1,5 @@
 {
+yash/polish
   "eye_classifier": {
     "evaluation": "leave-one-person-out, 4 people incl. 2 glasses sessions; decoded frame-by-frame like the live app",
     "settings": {
@@ -53,4 +54,5 @@
     "p95_s": 0.9270951747894287,
     "over_3_5s": 0
   }
+main
 }
