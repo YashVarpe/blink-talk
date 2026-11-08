@@ -14,7 +14,7 @@ cache, and wiring Yash's Gemini module into `/api/suggest`. Om owns deployment a
 Until those land, use stubs with the same signatures so routes work end to end.
 
 ## Routes (exact shapes from the shared contract)
-- `POST /api/suggest`: load profile + last 6 messages; call `gemini.suggest` in a thread with a 3.5 s timeout;
+- `POST /api/suggest`: load profile; history = request body `history` (last 6), or the last 6 stored messages if the body sent none; call `gemini.suggest` in a thread with a 3.5 s timeout;
   on any error/timeout return `fallbacks.phrases(local_time, profile)` with `source: "fallback"`. Always exactly 6 phrases.
 - `POST /api/speak`: `voice.speak(text)` → `audio/mpeg`. Cache key = sha1(voice_id + model + text) → `audio_cache/<key>.mp3`.
   On ElevenLabs failure return `503` quickly (frontend falls back to browser speech).
@@ -40,4 +40,5 @@ Tables: `messages(id TEXT PK, role TEXT, text TEXT, ts TEXT)`, `profile(id INTEG
 - Python 3.11, FastAPI, pydantic v2 models mirroring the shared TS types (camelCase JSON via aliases).
 - Keep every handler fast; never block the event loop on network calls (use async httpx or run in a thread).
 - Log request time for `/suggest` and `/speak` (Yash and Yudi need latency numbers).
-- `uvicorn api.main:app --port 8000` for dev; Om runs it in production.
+- Dev: `cd api && uvicorn main:app --reload --port 8000` (flat imports, same as the systemd unit). Om runs it in production.
+- Local venv: Homebrew Python 3.12 on macOS 26 breaks `ensurepip`; use `uv venv --python 3.12 --managed-python --seed .venv`.
