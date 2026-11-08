@@ -125,7 +125,7 @@ export default function Talk() {
       </section>
 
       <footer className="flex flex-wrap items-center justify-center gap-3 text-lg text-muted" aria-live="polite">
-        <span>{spoken ? `Speaking: “${spoken}”` : "Look left or right to move · long blink to select"}</span>
+        {spoken && <span>{`Speaking: “${spoken}”`}</span>}
       </footer>
 
       {resting && (
