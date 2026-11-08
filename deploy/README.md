@@ -24,7 +24,7 @@ sudo systemctl restart blinktalk-api blinktalk-web
 # 1. root had no SSH key after create → logged in with the root password (Vultr Overview page), then on the server:
 mkdir -p ~/.ssh && chmod 700 ~/.ssh && echo '<your id_ed25519.pub line>' >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys
 # 2. from a laptop in the repo: copy + run the one-time setup (firewall, deploy user, Node 20, Python, Caddy, clone, sudo rule)
-scp deploy/setup.sh root@64.177.56.221: && ssh root@64.177.56.221 'DEBIAN_FRONTEND=noninteractive bash setup.sh'
+scp deploy/setup.sh root@64.177.56.221: && ssh root@64.177.56.221 bash setup.sh
 # 3. checks
 ssh deploy@64.177.56.221 'sudo -n systemctl reload caddy'   # works without password (only our 3 commands)
 curl -I http://64.177.56.221                                 # Caddy default page, HTTP 200

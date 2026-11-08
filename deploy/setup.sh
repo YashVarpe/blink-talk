@@ -3,6 +3,7 @@
 #   scp deploy/setup.sh root@<ip>: && ssh root@<ip> bash setup.sh
 # Safe to re-run: every step checks whether it's already done.
 set -euo pipefail
+export DEBIAN_FRONTEND=noninteractive   # apt never stops to ask questions
 
 REPO_URL="https://github.com/tupe-atharva/blink-talk.git"
 APP_DIR="/srv/blinktalk"
@@ -15,8 +16,14 @@ ufw --force enable
 
 echo "== 2/6 deploy user (same SSH key as root) =="
 id deploy >/dev/null 2>&1 || adduser --disabled-password --gecos "" deploy
+if [ ! -s /root/.ssh/authorized_keys ]; then
+  echo "ERROR: /root/.ssh/authorized_keys is missing or empty. Add your SSH public key to root first (see deploy/README.md)." >&2
+  exit 1
+fi
 mkdir -p /home/deploy/.ssh
-cp /root/.ssh/authorized_keys /home/deploy/.ssh/authorized_keys
+touch /home/deploy/.ssh/authorized_keys
+# merge root's keys with any teammate keys already added (re-running must not erase them)
+sort -u /root/.ssh/authorized_keys /home/deploy/.ssh/authorized_keys -o /home/deploy/.ssh/authorized_keys
 chown -R deploy:deploy /home/deploy/.ssh
 chmod 700 /home/deploy/.ssh
 chmod 600 /home/deploy/.ssh/authorized_keys
