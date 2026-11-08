@@ -14,12 +14,6 @@
 
   body {
     @apply bg-canvas text-ink antialiased;
-    background-image: radial-gradient(
-      1200px 600px at 50% -10%,
-      rgba(10, 132, 255, 0.16),
-      transparent 60%
-    );
-    background-repeat: no-repeat;
   }
 
   /* Visible keyboard focus: nothing relies on hover or precise pointing */
@@ -29,19 +23,105 @@
   }
 
   ::selection {
-    background: rgba(10, 132, 255, 0.4);
+    background: rgba(178, 173, 74, 0.45);
   }
 }
 
 @layer components {
-  /* Frosted-glass panel, used for headers and cards */
+  /* Frosted panel for headers and cards */
   .glass {
-    @apply border border-white/10 bg-surface/70 shadow-tile backdrop-blur-xl;
+    @apply border border-line bg-surface/70 shadow-tile backdrop-blur-xl;
   }
 
   /* Small uppercase caption above a value */
   .caption {
     @apply text-sm font-medium uppercase tracking-widest text-muted;
+  }
+
+  /* Gradient glow: a flowing edge plus a soft halo on hover, keyboard focus,
+     or when the eye-highlight lands on it (aria-current). Add "glow" to any button, link or tile. */
+  .glow {
+    position: relative;
+    transition: box-shadow 0.3s ease;
+  }
+  .glow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 2px;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    background: linear-gradient(120deg, #c3d1b9, #b2ad4a, #6fb3a5, #e6dc86, #c3d1b9) 0 0 / 300% 100%;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+  .glow:hover::before,
+  .glow:focus-visible::before,
+  .glow[aria-current="true"]::before {
+    opacity: 1;
+    animation: glow-flow 5s linear infinite;
+  }
+  .glow:hover,
+  .glow:focus-visible {
+    box-shadow:
+      -8px 0 32px rgba(111, 179, 165, 0.35),
+      8px 0 32px rgba(178, 173, 74, 0.35),
+      0 12px 36px rgba(195, 209, 185, 0.15);
+  }
+
+  /* Horizon Grid background: a floor of lines rolling toward the viewer */
+  .horizon-glow {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 54%;
+    background: radial-gradient(60% 100% at 50% 100%, rgba(195, 209, 185, 0.12), transparent 70%);
+  }
+  .horizon-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 52%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(195, 209, 185, 0.6), transparent);
+  }
+  .horizon-floor {
+    position: absolute;
+    left: -40%;
+    right: -40%;
+    top: 52%;
+    bottom: -30%;
+    overflow: hidden;
+    transform: perspective(520px) rotateX(64deg);
+    transform-origin: 50% 0;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 22%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 22%);
+  }
+  .horizon-grid {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -64px;
+    bottom: 0;
+    background-image:
+      linear-gradient(rgba(195, 209, 185, 0.2) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(195, 209, 185, 0.2) 1px, transparent 1px);
+    background-size: 64px 64px;
+    animation: horizon-roll 2.4s linear infinite;
+  }
+}
+
+@keyframes glow-flow {
+  to {
+    background-position: 300% 0;
+  }
+}
+
+@keyframes horizon-roll {
+  to {
+    transform: translateY(64px);
   }
 }
 
