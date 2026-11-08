@@ -77,7 +77,7 @@ type Profile = { name: string; caregivers: string[]; needs: string[]; preference
 | `GET /api/profile` · `PUT /api/profile` | `Profile` | `Profile` |
 | `GET /api/health` | — | `{ ok: true }` |
 
-Timeouts: `/suggest` must answer within 4 s (fall back to default phrases); `/speak` within 5 s.
+Timeouts: `/suggest` and `/speak` must answer within 5 s (`/suggest` falls back to default phrases). The 5 s includes a possible ~3 s first-connection TLS delay on the venue Wi-Fi. Frontend: abort every call at 5 s.
 
 **Eye-signal events (web/lib/signals.ts → UI)**
 ```ts

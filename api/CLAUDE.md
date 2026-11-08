@@ -14,7 +14,7 @@ cache, and wiring Yash's Gemini module into `/api/suggest`. Om owns deployment a
 Until those land, use stubs with the same signatures so routes work end to end.
 
 ## Routes (exact shapes from the shared contract)
-- `POST /api/suggest`: load profile; history = request body `history` (last 6), or the last 6 stored messages if the body sent none; call `gemini.suggest` in a thread with a 3.5 s timeout;
+- `POST /api/suggest`: load profile; history = request body `history` (last 6), or the last 6 stored messages if the body sent none; call `gemini.suggest` in a thread with a 3.5 s timeout (the contract limit for the whole call is 5 s);
   on any error/timeout return `fallbacks.phrases(local_time, profile)` with `source: "fallback"`. Always exactly 6 phrases.
 - `POST /api/speak`: `voice.speak(text)` → `audio/mpeg`. Cache key = sha1(voice_id + model + text) → `audio_cache/<key>.mp3`.
   On ElevenLabs failure return `503` quickly (frontend falls back to browser speech).
