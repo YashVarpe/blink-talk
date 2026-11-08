@@ -29,16 +29,16 @@ export default function Home() {
   });
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center gap-10 p-6 text-center">
+    <main className="mx-auto flex min-h-screen max-w-4xl flex-col items-center justify-center gap-8 p-6 text-center">
       <div className="flex flex-col items-center gap-5">
-        <svg width="84" height="84" viewBox="0 0 84 84" aria-hidden="true">
+        <svg width="72" height="72" viewBox="0 0 84 84" aria-hidden="true">
           <defs>
-            <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="#0a84ff" />
-              <stop offset="1" stopColor="#5e5ce6" />
+            <linearGradient id="logo" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stopColor="#b2ad4a" />
+              <stop offset="1" stopColor="#6d7a52" />
             </linearGradient>
           </defs>
-          <rect width="84" height="84" rx="24" fill="url(#g)" />
+          <rect width="84" height="84" rx="24" fill="url(#logo)" />
           <path
             d="M14 42c8-13 18-19 28-19s20 6 28 19c-8 13-18 19-28 19S22 55 14 42z"
             fill="none"
@@ -48,13 +48,15 @@ export default function Home() {
           />
           <circle cx="42" cy="42" r="9" fill="#fff" />
         </svg>
-        <h1 className="text-7xl font-semibold tracking-tight">BlinkTalk</h1>
-        <p className="max-w-2xl text-3xl font-medium text-muted">
-          Hold a conversation with your eyes.
+        <h1 className="font-display text-7xl font-extrabold italic leading-none tracking-tight md:text-8xl">
+          BlinkTalk
+        </h1>
+        <p className="max-w-xl text-lg leading-relaxed text-muted md:text-xl">
+          Hold a conversation with your eyes. Look to move, blink to choose, and your voice speaks.
         </p>
       </div>
 
-      <section className="grid w-full grid-cols-1 gap-5 md:grid-cols-2" aria-label="Start">
+      <section className="grid w-full grid-cols-1 gap-4 md:grid-cols-2" aria-label="Start">
         {CHOICES.map((c, i) => (
           <Tile
             key={c.href}
@@ -66,16 +68,16 @@ export default function Home() {
         ))}
       </section>
 
-      <nav className="flex flex-wrap items-center justify-center gap-3 text-lg" aria-label="Other views">
-        <Link href="/caregiver" className="glass rounded-full px-6 py-3 font-medium">
+      <nav className="flex flex-wrap items-center justify-center gap-3" aria-label="Other views">
+        <Link href="/caregiver" className="glass glow rounded-full px-6 py-3 font-medium">
           Caregiver view
         </Link>
-        <Link href="/results" className="glass rounded-full px-6 py-3 font-medium">
+        <Link href="/results" className="glass glow rounded-full px-6 py-3 font-medium">
           Results
         </Link>
       </nav>
 
-      <p className="flex items-center gap-2 text-base text-muted">
+      <p className="flex items-center gap-2 text-sm text-muted">
         <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
           <path
             d="M8 1l6 2v4c0 4-3 7-6 8-3-1-6-4-6-8V3z"
