@@ -1,0 +1,11 @@
+# Auto-deploy check (started every minute by blinktalk-autodeploy.timer).
+# Installed at /etc/systemd/system/blinktalk-autodeploy.service
+[Unit]
+Description=BlinkTalk auto-deploy: deploy new commits on GitHub main
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=deploy
+Environment=HOME=/home/deploy
+ExecStart=/srv/blinktalk/deploy/autodeploy.sh

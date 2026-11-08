@@ -1,0 +1,11 @@
+# Runs blinktalk-autodeploy.service 1 minute after the previous run finished.
+# Installed at /etc/systemd/system/blinktalk-autodeploy.timer
+[Unit]
+Description=Check GitHub main for new commits every minute
+
+[Timer]
+OnBootSec=2min
+OnUnitInactiveSec=1min
+
+[Install]
+WantedBy=timers.target
