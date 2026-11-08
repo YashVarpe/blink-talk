@@ -66,6 +66,8 @@ export default function Home() {
             sub={c.sub}
             active={i === idx}
             progress={i === idx ? progress : 0}
+            onHover={() => setIdx(i)}
+            onPick={() => router.push(c.href)}
           />
         ))}
       </section>
