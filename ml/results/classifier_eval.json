@@ -8,39 +8,39 @@
       "yashvarpe"
     ],
     "per_class_recall": {
-      "idle": 0.995,
-      "natural_blink": 0.986,
+      "idle": 0.998,
+      "natural_blink": 0.974,
       "long_blink": 1.0,
-      "left": 0.945,
-      "right": 0.975,
-      "brow_up": 0.88
+      "left": 0.989,
+      "right": 0.98,
+      "brow_up": 0.907
     },
     "per_person_accuracy": {
-      "atharvatupe": 0.966,
-      "omwaikar": 0.985,
-      "udayanjadhav": 0.992,
-      "yashvarpe": 0.996
+      "atharvatupe": 0.962,
+      "omwaikar": 1.0,
+      "udayanjadhav": 0.996,
+      "yashvarpe": 0.998
     },
-    "windows": 11945
+    "windows": 12162
   },
   "streaming": {
     "note": "held-out person, every window decoded like the browser",
     "detection": {
-      "long_blink": "59/60",
-      "left": "37/48",
+      "long_blink": "60/60",
+      "left": "46/48",
       "right": "46/48",
       "brow_up": "32/36"
     },
     "false_per_min_classifier": {
       "select": 0.24,
-      "move": 4.2,
-      "undo": 0.48,
-      "emergency": 0.72
+      "move": 4.92,
+      "undo": 0.6,
+      "emergency": 0.48
     },
     "false_per_min_rules": {
       "select": 0.48,
-      "move": 21.11,
-      "undo": 0.6
+      "move": 16.2,
+      "undo": 0.48
     },
     "false_selects_during_guided_sessions": 1,
     "decode": {
@@ -58,19 +58,19 @@
   "labeled_windows_only": {
     "detection_classifier": {
       "brow_up": {
-        "detected": 27,
+        "detected": 29,
         "trials": 36,
-        "rate": 0.75
+        "rate": 0.806
       },
       "left": {
-        "detected": 35,
+        "detected": 44,
         "trials": 48,
-        "rate": 0.729
+        "rate": 0.917
       },
       "long_blink": {
-        "detected": 57,
+        "detected": 59,
         "trials": 60,
-        "rate": 0.95
+        "rate": 0.983
       },
       "right": {
         "detected": 46,
@@ -85,7 +85,7 @@
         "rules_select_per_min": 0.96,
         "rules_move_per_min": 23.5,
         "rules_undo_per_min": 0.0,
-        "clf_select_per_min": 1.44,
+        "clf_select_per_min": 0.96,
         "clf_move_per_min": 0.0,
         "clf_undo_per_min": 0.0
       },
@@ -93,9 +93,9 @@
         "person": "omwaikar",
         "minutes": 2.08,
         "rules_select_per_min": 0.48,
-        "rules_move_per_min": 31.68,
-        "rules_undo_per_min": 1.92,
-        "clf_select_per_min": 0.96,
+        "rules_move_per_min": 12.0,
+        "rules_undo_per_min": 1.44,
+        "clf_select_per_min": 0.48,
         "clf_move_per_min": 0.0,
         "clf_undo_per_min": 1.44
       },
@@ -115,9 +115,9 @@
         "rules_select_per_min": 0.48,
         "rules_move_per_min": 12.95,
         "rules_undo_per_min": 0.48,
-        "clf_select_per_min": 0.48,
+        "clf_select_per_min": 0.96,
         "clf_move_per_min": 0.0,
-        "clf_undo_per_min": 0.0
+        "clf_undo_per_min": 0.48
       }
     ]
   }

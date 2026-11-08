@@ -185,9 +185,14 @@ export function predictTrees(m: Trees, x: number[]): Record<string, number> {
 // Event decoding
 
 const DEFAULT_SELECT_S = 0.45; // eyes closed this long (and the model agrees) = long blink
-const REST_S = 5.0;
-const SHORT_BLINK_S = 0.4;
-const EMERGENCY_WINDOW_S = 1.5;
+const SELECT_MAX_S = 1.7; // closed 0.45–1.7 s = select
+const EMERGENCY_MIN_S = 2.0; // closed 2–4 s = emergency (natural blinks are 0.1–0.2 s, so this can't happen by accident)
+const EMERGENCY_MAX_S = 4.0;
+const REST_S = 5.0; // closed > 5 s = rest mode
+const SHORT_BLINK_S = 0.4; // a "quick blink" is closed less than this
+const BLINK_BURST_N = 5; // 5 quick blinks…
+const BLINK_BURST_WINDOW_S = 2.5; // …within 2.5 s = emergency
+const FLICKER_GAP_S = 0.1; // re-opening shorter than this = signal flicker, same blink
 
 type Emit = (e: SignalEvent) => void;
 
@@ -196,12 +201,12 @@ export class Decoder {
   private armed = false; // this closure counts as a long blink
   private closureStart: number | null = null;
   private lastHoldEmit = 0;
-  private shortBlinks: number[] = [];
   private runs = { select: 0, move: 0, undo: 0 };
   private latched = false; // waiting for idle after a move/undo
   private ruleMove: { side: -1 | 0 | 1; since: number; latched: boolean } = { side: 0, since: 0, latched: false };
   private ruleBrow = { since: -1, latched: false };
   private restEmitted = false;
+  private blinks: { start: number; end: number }[] = [];
 
   constructor(private cal: Calibration, private dec: Decode, public mode: "classifier" | "rules", private gazeMoves = true) {}
 
@@ -235,22 +240,31 @@ export class Decoder {
       this.closureStart = null;
       this.armed = false;
       emit({ type: "hold", progress: 0 });
+      const isSelect = wasArmed && dur >= this.selectMin() && dur <= SELECT_MAX_S;
+      // emergency gesture 1: 5 quick blinks within 2.5 s (works awake and in rest mode)
+      if (!wasArmed && dur < SHORT_BLINK_S) {
+        const start = row.t - dur;
+        const prev = this.blinks[this.blinks.length - 1];
+        if (prev && start - prev.end < FLICKER_GAP_S) prev.end = row.t; // flicker → same blink
+        else this.blinks.push({ start, end: row.t });
+        this.blinks = this.blinks.filter((b) => row.t - b.start <= BLINK_BURST_WINDOW_S);
+        if (this.blinks.length >= BLINK_BURST_N) {
+          this.blinks = [];
+          emit({ type: "emergency" });
+          return;
+        }
+      }
       if (this.restEmitted) {
         this.restEmitted = false; // the closure that started rest ends here; stay resting
+      } else if (dur >= EMERGENCY_MIN_S && dur <= EMERGENCY_MAX_S) {
+        emit({ type: "emergency" }); // emergency gesture 2: eyes closed 2–4 s (awake and in rest mode)
       } else if (this.resting) {
-        if (wasArmed && dur >= this.selectMin()) {
+        if (isSelect) {
           this.resting = false;
           emit({ type: "rest", on: false }); // long blink wakes up
         }
-      } else if (wasArmed && dur >= this.selectMin() && dur <= REST_S) {
+      } else if (isSelect) {
         emit({ type: "select" });
-      } else if (!wasArmed && dur < SHORT_BLINK_S) {
-        this.shortBlinks = this.shortBlinks.filter((t) => row.t - t <= EMERGENCY_WINDOW_S);
-        this.shortBlinks.push(row.t);
-        if (this.shortBlinks.length >= 3) {
-          this.shortBlinks = [];
-          emit({ type: "emergency" });
-        }
       }
     }
     if (this.mode === "rules" && !row.closed && !this.resting) this.rulesGazeBrow(row, emit);
