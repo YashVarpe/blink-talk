@@ -9,8 +9,12 @@ import { Tile } from "@/lib/Tile";
 import type { Message } from "@/lib/types";
 import type { SignalEvent } from "@/lib/mockSignals";
 import { useKeepWarm } from "@/lib/useKeepWarm";
+import { muteListening, startListening, sttSupported } from "@/lib/stt";
 
 const SPELL = "Spell something";
+
+/** Roughly how long our own voice plays for `text` (~15 chars/s) plus a margin, so STT ignores it. */
+const speakingMs =(text: string) => Math.min(10000, 1500 + text.length * 70);
 
 export default function Talk() {
   const router = useRouter();
@@ -24,6 +28,7 @@ export default function Talk() {
   const [resting, setResting] = useState(false);
   const [faceLost, setFaceLost] = useState(false);
   const [emergency, setEmergency] = useState<number | null>(null); // seconds left
+  const [mic, setMic] = useState<"on" | "off" | null>(null); // null until we know (client only)
   const history = useRef<Message[]>([]);
   const tiles = [...phrases.slice(0, 5), SPELL];
 
@@ -40,6 +45,7 @@ export default function Talk() {
     if (label === SPELL) { router.push("/spell"); return; }
     setFlash(i); selectSound(); setSpoken(label);
     setTimeout(() => setFlash(null), 600);
+    muteListening(speakingMs(label)); // don't transcribe our own voice as the caregiver
     speak(label); // speak first, so the voice never waits on a network call
     const m = await postMessage("user", label);
     if (m) history.current.push(m);
@@ -68,7 +74,14 @@ export default function Talk() {
     }
   });
 
-  // Dev helper until stt.ts lands: press "C" to simulate a caregiver question.
+  // Caregiver speech → tiles. Web Speech API (Chrome / Edge / Safari); stt.ts auto-restarts.
+  useEffect(() => {
+    if (!sttSupported()) { setMic("off"); return; }
+    setMic("on");
+    return startListening((text) => { if (text.length >= 2) onCaregiver(text); });
+  }, [onCaregiver]);
+
+  // Backup (no mic, or demo noise): press "C" to simulate a caregiver question.
   useEffect(() => {
     const h = (ev: KeyboardEvent) => { if (ev.key === "c") onCaregiver("Are you in pain?"); };
     window.addEventListener("keydown", h);
@@ -83,6 +96,11 @@ export default function Talk() {
           <p className="mt-1 text-3xl font-semibold tracking-tight">{banner}</p>
         </div>
         <div className="flex items-center gap-3 text-lg">
+          {mic && (
+            <span className={`rounded-full px-4 py-2 font-medium ${mic === "on" ? "bg-good/15 text-good" : "bg-warn/15 text-warn"}`}>
+              {mic === "on" ? "Listening" : "No mic: press C"}
+            </span>
+          )}
           <span className={`flex items-center gap-2 rounded-full px-4 py-2 font-medium ${faceLost ? "bg-danger/20 text-danger" : "bg-good/15 text-good"}`}>
             <span className={`h-2.5 w-2.5 rounded-full ${faceLost ? "bg-danger" : "bg-good"}`} />
             {faceLost ? "Looking for your face" : "Eyes tracked"}
