@@ -96,6 +96,8 @@ Video never leaves the patient's device. Only text and small events are sent to 
 - **Graceful degradation.** If Gemini is slow or down, default phrases are used. If ElevenLabs fails, the browser's built-in speech is used. If the model can't load, rules take over.
 - **Privacy by design.** Face tracking runs in the browser. No images or video are uploaded or stored.
 
+**Demo video:** [Watch BlinkTalk on YouTube](https://youtu.be/gJDuMQ_OrNM)
+
 ---
 
 ## How it works
