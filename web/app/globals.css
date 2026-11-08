@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-canvas text-ink antialiased;
+    background-image: radial-gradient(
+      1200px 600px at 50% -10%,
+      rgba(10, 132, 255, 0.16),
+      transparent 60%
+    );
+    background-repeat: no-repeat;
+  }
+
+  /* Visible keyboard focus: nothing relies on hover or precise pointing */
+  :focus-visible {
+    outline: 3px solid theme("colors.accent");
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: rgba(10, 132, 255, 0.4);
+  }
+}
+
+@layer components {
+  /* Frosted-glass panel, used for headers and cards */
+  .glass {
+    @apply border border-white/10 bg-surface/70 shadow-tile backdrop-blur-xl;
+  }
+
+  /* Small uppercase caption above a value */
+  .caption {
+    @apply text-sm font-medium uppercase tracking-widest text-muted;
+  }
+}
+
+/* Respect the user's motion settings */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
