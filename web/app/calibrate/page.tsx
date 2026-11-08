@@ -45,9 +45,11 @@ export default function Calibrate() {
       )}
 
       <div className="glass flex w-full flex-col items-center gap-5 rounded-4xl px-8 py-10">
-        <p className="caption">
-          {step && !done ? `Step ${step.stepIndex + 1} of ${step.steps}${step.reps > 1 ? ` · ${step.rep}/${step.reps}` : ""}` : "Calibration"}
-        </p>
+        {step && !done && (
+          <p className="caption">
+            {`Step ${step.stepIndex + 1} of ${step.steps}${step.reps > 1 ? ` · ${step.rep}/${step.reps}` : ""}`}
+          </p>
+        )}
         <h1 className="font-display text-6xl font-extrabold italic leading-none tracking-tight md:text-7xl">
           {step ? step.title : "Calibration"}
         </h1>
@@ -69,7 +71,7 @@ export default function Calibrate() {
       <div className="flex flex-wrap items-center justify-center gap-3">
         {!running && (
           <button onClick={start} className="glow rounded-full bg-highlight px-10 py-5 text-2xl font-semibold text-onhighlight shadow-glow">
-            {done || hasSaved ? "Calibrate again" : "Start"}
+            {done || hasSaved ? "Calibrate again" : "Calibrate now"}
           </button>
         )}
         {running && (

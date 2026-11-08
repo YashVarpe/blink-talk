@@ -40,7 +40,7 @@ export function Tile({ label, active, flash, progress, sub, disabled, onHover, o
           <circle cx="28" cy="28" r="22" fill="none" stroke="#1d2b30" strokeWidth="6" strokeLinecap="round" strokeDasharray={C} strokeDashoffset={C * (1 - progress)} transform="rotate(-90 28 28)" />
         </svg>
       )}
-      {live && <span className="absolute bottom-3 left-5 text-xs font-semibold uppercase tracking-widest opacity-70">Hold blink to select</span>}
+      {live && <span className="absolute inset-x-0 bottom-3 text-center text-xs font-semibold uppercase tracking-widest opacity-70">Hold blink to select</span>}
     </motion.div>
   );
 }
