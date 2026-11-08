@@ -1,0 +1,180 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-canvas text-ink antialiased;
+  }
+
+  /* Visible keyboard focus: nothing relies on hover or precise pointing */
+  :focus-visible {
+    outline: 3px solid theme("colors.accent");
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: rgba(178, 173, 74, 0.45);
+  }
+}
+
+@layer components {
+  /* Frosted panel for headers and cards */
+  .glass {
+    @apply border border-line bg-surface/70 shadow-tile backdrop-blur-xl;
+  }
+
+  /* Small uppercase caption above a value */
+  .caption {
+    @apply text-sm font-medium uppercase tracking-widest text-muted;
+  }
+
+  /* Gradient glow: a flowing edge plus a soft halo on hover, keyboard focus,
+     or when the eye-highlight lands on it (aria-current). Add "glow" to any button, link or tile. */
+  .glow {
+    position: relative;
+    transition: box-shadow 0.3s ease;
+  }
+  .glow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 2px;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    background: linear-gradient(120deg, #c3d1b9, #b2ad4a, #6fb3a5, #e6dc86, #c3d1b9) 0 0 / 300% 100%;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+  .glow:hover::before,
+  .glow:focus-visible::before,
+  .glow[aria-current="true"]::before {
+    opacity: 1;
+    animation: glow-flow 5s linear infinite;
+  }
+  .glow:hover,
+  .glow:focus-visible {
+    box-shadow:
+      -8px 0 32px rgba(111, 179, 165, 0.35),
+      8px 0 32px rgba(178, 173, 74, 0.35),
+      0 12px 36px rgba(195, 209, 185, 0.15);
+  }
+
+  /* Horizon Grid background: a floor of lines rolling toward the viewer */
+  .horizon-glow {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 54%;
+    background: radial-gradient(60% 100% at 50% 100%, rgba(195, 209, 185, 0.12), transparent 70%);
+  }
+  .horizon-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 52%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(195, 209, 185, 0.6), transparent);
+  }
+  .horizon-floor {
+    position: absolute;
+    left: -40%;
+    right: -40%;
+    top: 52%;
+    bottom: -30%;
+    overflow: hidden;
+    transform: perspective(520px) rotateX(64deg);
+    transform-origin: 50% 0;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 22%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 22%);
+  }
+  .horizon-grid {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -64px;
+    bottom: 0;
+    background-image:
+      linear-gradient(rgba(195, 209, 185, 0.2) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(195, 209, 185, 0.2) 1px, transparent 1px);
+    background-size: 64px 64px;
+    animation: horizon-roll 2.4s linear infinite;
+  }
+}
+/* Logo: glowing wordmark and an eye that blinks */
+.wordmark-glow {
+  text-shadow: 0 0 22px rgba(178, 173, 74, 0.35), 0 0 64px rgba(195, 209, 185, 0.22);
+  animation: wordmark-pulse 4.5s ease-in-out infinite;
+}
+.logo-glow {
+  filter: drop-shadow(0 0 14px rgba(178, 173, 74, 0.5));
+  animation: logo-pulse 4.5s ease-in-out infinite;
+}
+.eye-blink {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: eye-blink 5s ease-in-out infinite;
+}
+
+@keyframes wordmark-pulse {
+  0%,
+  100% {
+    text-shadow: 0 0 22px rgba(178, 173, 74, 0.3), 0 0 64px rgba(195, 209, 185, 0.18);
+  }
+  50% {
+    text-shadow: 0 0 30px rgba(178, 173, 74, 0.6), 0 0 90px rgba(195, 209, 185, 0.35);
+  }
+}
+@keyframes logo-pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 10px rgba(178, 173, 74, 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 0 22px rgba(178, 173, 74, 0.75));
+  }
+}
+@keyframes eye-blink {
+  0%,
+  88%,
+  100% {
+    transform: scaleY(1);
+  }
+  92% {
+    transform: scaleY(0.06);
+  }
+}
+@keyframes glow-flow {
+  to {
+    background-position: 300% 0;
+  }
+}
+
+@keyframes horizon-roll {
+  to {
+    transform: translateY(64px);
+  }
+}
+
+/* Respect the user's motion settings */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
