@@ -14,11 +14,12 @@ import logging  # noqa: E402
 import time  # noqa: E402
 from contextlib import asynccontextmanager  # noqa: E402
 
-from fastapi import FastAPI, Query, Response  # noqa: E402
+from fastapi import Depends, FastAPI, Query, Request, Response  # noqa: E402
 
 import db  # noqa: E402
 import fallbacks  # noqa: E402
 import voice  # noqa: E402
+from ratelimit import RateLimiter  # noqa: E402
 from models import (  # noqa: E402
     AlertIn,
     Message,
@@ -85,7 +86,11 @@ def health():
     return {"ok": True}
 
 
-@app.post("/api/suggest", response_model=SuggestResponse)
+suggest_limiter = RateLimiter("suggest", limit=30)  # per client IP per minute; costs Gemini credits
+speak_limiter = RateLimiter("speak", limit=20)      # only counts UNcached text; cached audio is free
+
+
+@app.post("/api/suggest", response_model=SuggestResponse, dependencies=[Depends(suggest_limiter.check)])
 async def suggest(req: SuggestRequest):
     t0 = time.perf_counter()
     profile = db.get_profile()
@@ -106,14 +111,19 @@ async def suggest(req: SuggestRequest):
             log.warning("gemini.suggest failed: %s: %s", type(e).__name__, e)
 
     phrases = fallbacks.pad(phrases, req.local_time, profile) if phrases else fallbacks.phrases(req.local_time, profile)
-    log.info("/suggest %s in %.0f ms", source, (time.perf_counter() - t0) * 1000)
+    # Start generating audio for the 6 tiles now, in the background (returns immediately), so the tile
+    # the patient picks is already in the cache by the time /speak asks for it.
+    prefetching = voice.prefetch(phrases)
+    log.info("/suggest %s in %.0f ms (prefetching %d)", source, (time.perf_counter() - t0) * 1000, prefetching)
     return SuggestResponse(phrases=phrases, source=source)
 
 
 @app.post("/api/speak")
-async def speak(req: SpeakRequest):
+async def speak(req: SpeakRequest, request: Request):
     t0 = time.perf_counter()
     cached = voice.is_cached(req.text)
+    if not cached:
+        await speak_limiter.check(request)  # 429 if this client is burning ElevenLabs credits
     try:
         audio = await voice.speak(req.text)
     except voice.VoiceError as e:

@@ -18,7 +18,12 @@ DEFAULT_MODEL = "eleven_flash_v2_5"  # lowest-latency ElevenLabs model
 CACHE_DIR = Path(__file__).resolve().parent / "audio_cache"
 TIMEOUT_S = 4.5  # contract: /speak answers within 5 s
 
+MAX_TEXT_LEN = 500  # same cap as SpeakRequest
+
 _client: httpx.AsyncClient | None = None
+_inflight: dict[Path, "asyncio.Task[bytes]"] = {}   # cache path -> running ElevenLabs call
+_background: set["asyncio.Task[None]"] = set()      # prefetch tasks
+_prefetch_sem: asyncio.Semaphore | None = None
 
 
 class VoiceError(Exception):
@@ -56,13 +61,8 @@ async def aclose() -> None:
         _client = None
 
 
-async def speak(text: str) -> bytes:
-    """MP3 bytes for `text`, from cache if possible. Raises VoiceError on any failure."""
-    text = text.strip()
-    path = cache_path(text)
-    if path.exists():
-        return path.read_bytes()
-
+async def _fetch(text: str, path: Path) -> bytes:
+    """One ElevenLabs call; writes the MP3 into the cache. Raises VoiceError on any failure."""
     key, voice_id, model = _config()
     if not key or not voice_id:
         raise VoiceError("ELEVEN_API_KEY or ELEVEN_VOICE_ID not set")
@@ -87,6 +87,67 @@ async def speak(text: str) -> bytes:
     tmp.write_bytes(r.content)
     tmp.replace(path)  # atomic: a half-written file is never served
     return r.content
+
+
+def _start(text: str, path: Path) -> "asyncio.Task[bytes]":
+    """Single-flight: if this phrase is already being generated (e.g. by prefetch), join that call
+    instead of paying ElevenLabs twice."""
+    task = _inflight.get(path)
+    if task is None:
+        task = asyncio.create_task(_fetch(text, path))
+        _inflight[path] = task
+
+        def _done(t: "asyncio.Task[bytes]") -> None:
+            _inflight.pop(path, None)
+            if not t.cancelled():
+                t.exception()  # mark as retrieved so a failed prefetch doesn't log "never retrieved"
+
+        task.add_done_callback(_done)
+    return task
+
+
+async def speak(text: str) -> bytes:
+    """MP3 bytes for `text`, from cache if possible. Raises VoiceError on any failure."""
+    text = text.strip()
+    path = cache_path(text)
+    if path.exists():
+        return path.read_bytes()
+    # shield: if this request is cancelled (client hung up), the shared call keeps going for others.
+    return await asyncio.shield(_start(text, path))
+
+
+# ---- prefetch ------------------------------------------------------------------
+
+PREFETCH_MAX = 6          # one /suggest board
+PREFETCH_CONCURRENCY = 2  # be gentle with ElevenLabs' concurrent-request limit
+
+
+async def _prefetch_one(text: str) -> None:
+    global _prefetch_sem
+    if _prefetch_sem is None:
+        _prefetch_sem = asyncio.Semaphore(PREFETCH_CONCURRENCY)
+    async with _prefetch_sem:
+        try:
+            await speak(text)
+        except VoiceError as e:
+            log.debug("prefetch skipped %r: %s", text, e)
+
+
+def prefetch(phrases: list[str]) -> int:
+    """Start generating audio for the tiles on screen, in the background. Returns how many were started.
+    Returns immediately; never raises. Must be called from the event loop."""
+    key, voice_id, _ = _config()
+    if not key or not voice_id:
+        return 0
+    todo: list[str] = []
+    for p in dict.fromkeys(s.strip() for s in phrases):  # dedupe, keep order
+        if p and len(p) <= MAX_TEXT_LEN and not cache_path(p).exists():
+            todo.append(p)
+    for p in todo[:PREFETCH_MAX]:
+        t = asyncio.create_task(_prefetch_one(p))
+        _background.add(t)  # keep a reference so the task isn't garbage-collected mid-flight
+        t.add_done_callback(_background.discard)
+    return min(len(todo), PREFETCH_MAX)
 
 
 async def warm_cache(phrases: list[str]) -> None:
