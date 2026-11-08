@@ -38,9 +38,9 @@ export default function Talk() {
     if (label === SPELL) { router.push("/spell"); return; }
     setFlash(i); selectSound(); setSpoken(label);
     setTimeout(() => setFlash(null), 600);
+    speak(label); // speak first, so the voice never waits on a network call
     const m = await postMessage("user", label);
     if (m) history.current.push(m);
-    speak(label);
   }, [tiles, router]);
 
   const onCaregiver = useCallback(async (text: string) => {
