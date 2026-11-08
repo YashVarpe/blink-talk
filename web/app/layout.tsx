@@ -1,7 +1,11 @@
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/ibm-plex-mono/500.css";
+import "@fontsource/ibm-plex-mono/600.css";
+import "@fontsource/poppins/800-italic.css";
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { WaterBackground } from "@/lib/WaterBackground";
+import { HorizonBackground } from "@/lib/HorizonBackground";
 
 export const metadata: Metadata = {
   title: "BlinkTalk",
@@ -9,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: "#233a41",
   width: "device-width",
   initialScale: 1,
 };
@@ -18,7 +22,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body className="min-h-screen font-sans">
-        <WaterBackground />
+        <HorizonBackground />
         {children}
       </body>
     </html>
