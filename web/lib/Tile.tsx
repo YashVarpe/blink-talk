@@ -1,9 +1,17 @@
 "use client";
 import { motion } from "framer-motion";
 
-type Props = { label: string; active: boolean; flash?: boolean; progress: number; sub?: string };
+type Props = {
+  label: string;
+  active: boolean;
+  flash?: boolean;
+  progress: number;
+  sub?: string;
+  onHover?: () => void; // pointer moves the highlight here
+  onPick?: () => void; // click or Enter selects it
+};
 
-export function Tile({ label, active, flash, progress, sub }: Props) {
+export function Tile({ label, active, flash, progress, sub, onHover, onPick }: Props) {
   const C = 2 * Math.PI * 22; // ring circumference
   const style = flash
     ? "bg-good text-onhighlight"
@@ -12,10 +20,18 @@ export function Tile({ label, active, flash, progress, sub }: Props) {
     : "bg-surface2 text-ink shadow-tile";
   return (
     <motion.div
+      role={onPick ? "button" : undefined}
+      tabIndex={onPick ? 0 : undefined}
       aria-current={active}
+      onPointerEnter={onHover}
+      onFocus={onHover}
+      onClick={onPick}
+      onKeyDown={(e) => {
+        if (onPick && e.key === "Enter") onPick();
+      }}
       animate={{ scale: active ? 1.03 : 1 }}
       transition={{ type: "spring", stiffness: 380, damping: 26 }}
-      className={`glow relative flex min-h-[150px] flex-col items-center justify-center rounded-4xl p-6 text-center text-3xl font-semibold leading-tight tracking-tight transition-colors duration-150 md:text-4xl ${style}`}
+      className={`glow relative flex min-h-[150px] flex-col items-center justify-center rounded-4xl p-6 text-center text-3xl font-semibold leading-tight tracking-tight transition-colors duration-150 md:text-4xl ${onPick ? "cursor-pointer" : ""} ${style}`}
     >
       <span>{label}</span>
       {sub && <span className="mt-2 text-base font-normal opacity-75">{sub}</span>}
