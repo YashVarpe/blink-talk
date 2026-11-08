@@ -6,5 +6,7 @@ set -euo pipefail
 cd /srv/blinktalk
 git fetch -q --tags --force
 git rev-parse -q --verify "refs/tags/demo" >/dev/null || { echo "❌ no 'demo' tag on GitHub yet - nothing to roll back to"; exit 1; }
+touch "$HOME/autodeploy.off"   # stop auto-deploy from putting main straight back; rm ~/autodeploy.off to resume
+echo "→ auto-deploy paused"
 echo "→ rolling back to demo = $(git rev-parse --short 'demo^{commit}')"
 exec /srv/blinktalk/deploy/deploy.sh demo
