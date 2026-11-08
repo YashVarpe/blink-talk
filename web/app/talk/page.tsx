@@ -21,7 +21,6 @@ export default function Talk() {
   const [progress, setProgress] = useState(0);
   const [flash, setFlash] = useState<number | null>(null);
   const [banner, setBanner] = useState("Waiting for the caregiver…");
-  const [spoken, setSpoken] = useState<string | null>(null);
   const [resting, setResting] = useState(false);
   const [faceLost, setFaceLost] = useState(false);
   const [emergency, setEmergency] = useState<number | null>(null); // seconds left
@@ -44,7 +43,7 @@ export default function Talk() {
     const label = tiles[i];
     if (!label || !lock.current.tryLock()) return; // already answered: wait for the caregiver
     setLocked(lock.current.isLocked); setProgress(0);
-    setFlash(i); selectSound(); setSpoken(label);
+    setFlash(i); selectSound();
     setTimeout(() => setFlash(null), 600);
     muteListening(speakingMs(label)); // don't transcribe our own voice as the caregiver
     speak(label); // speak first, so the voice never waits on a network call
@@ -124,10 +123,6 @@ export default function Talk() {
           />
         ))}
       </section>
-
-      <footer className="flex flex-wrap items-center justify-center gap-3 text-lg text-muted" aria-live="polite">
-        {spoken && <span>{`Speaking: “${spoken}”`}</span>}
-      </footer>
 
       {resting && (
         <div role="status" className="fixed inset-0 z-40 flex items-center justify-center bg-black/90 text-6xl font-semibold tracking-tight backdrop-blur-sm">Resting — long blink to wake</div>
